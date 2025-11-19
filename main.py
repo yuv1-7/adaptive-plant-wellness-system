@@ -54,11 +54,15 @@ def find_matching_common_name(common_names: List[str], disease_plant: str) -> Op
 
 def filter_disease_predictions(species_results, disease_result):
     """
-    Filter disease predictions to only show those matching identified species.
-    If no match, create a "healthy" prediction.
+    General filtering that works for ALL cases:
+    1. If species matches disease -> show filtered results
+    2. If species doesn't match BUT confidence is high -> show with warning
+    3. If both have low confidence -> show both unfiltered with disclaimer
     """
     if not species_results or len(species_results) == 0:
         # No species identified, return original disease results
+        disease_result['filtered'] = False
+        disease_result['filter_message'] = "No species identified - showing raw disease detection"
         return disease_result
     
     if not disease_result.get('success') or not disease_result.get('predictions'):
@@ -66,29 +70,28 @@ def filter_disease_predictions(species_results, disease_result):
     
     # Get top identified species
     top_species = species_results[0]
+    species_confidence = top_species.score
     scientific_name = top_species.scientific_name.lower()
     common_names = [name.lower() for name in top_species.common_names]
     genus = top_species.genus.lower()
-    family = top_species.family.lower()
     
-    # Extract genus from scientific name (first word)
+    # Extract genus from scientific name
     identified_genus = scientific_name.split()[0] if scientific_name else ""
     
-    # Build search terms from identified species
+    # Get top disease prediction
+    top_disease = disease_result['predictions'][0]
+    disease_confidence = top_disease['confidence']
+    disease_plant = top_disease['plant'].lower().strip()
+    
+    # Build comprehensive search terms
     search_terms = set()
     search_terms.add(genus)
     search_terms.add(identified_genus)
     search_terms.update(common_names)
     
-    # Add partial matches for genus
-    if identified_genus:
-        search_terms.add(identified_genus[:4])  # First 4 chars
-    
-    # Enhanced plant mappings - bidirectional
+    # Expanded plant mappings (covers more cases)
     plant_mappings = {
-        'azadirachta': ['neem', 'azadirachta'],
-        'neem': ['azadirachta', 'neem'],
-        'solanum': ['tomato', 'potato', 'solanum', 'lycopersicon'],
+        'solanum': ['tomato', 'potato', 'solanum', 'lycopersicon', 'eggplant', 'aubergine'],
         'lycopersicon': ['tomato', 'solanum'],
         'tomato': ['solanum', 'lycopersicon', 'tomato'],
         'potato': ['solanum', 'potato'],
@@ -99,15 +102,15 @@ def filter_disease_predictions(species_results, disease_result):
         'grape': ['vitis', 'grape'],
         'malus': ['apple', 'malus'],
         'apple': ['malus', 'apple'],
-        'prunus': ['cherry', 'peach', 'prunus'],
+        'prunus': ['cherry', 'peach', 'plum', 'prunus'],
         'cherry': ['prunus', 'cherry'],
         'peach': ['prunus', 'peach'],
-        'capsicum': ['pepper', 'chilli', 'capsicum', 'bell pepper'],
+        'capsicum': ['pepper', 'bell pepper', 'capsicum', 'chili', 'chilli'],
         'pepper': ['capsicum', 'pepper'],
-        'chilli': ['capsicum', 'chilli'],
+        'bell': ['capsicum', 'pepper'],
         'rosa': ['rose', 'rosa'],
         'rose': ['rosa', 'rose'],
-        'citrus': ['orange', 'lemon', 'citrus'],
+        'citrus': ['orange', 'lemon', 'lime', 'citrus'],
         'orange': ['citrus', 'orange'],
         'fragaria': ['strawberry', 'fragaria'],
         'strawberry': ['fragaria', 'strawberry'],
@@ -115,13 +118,10 @@ def filter_disease_predictions(species_results, disease_result):
         'raspberry': ['rubus', 'raspberry'],
         'vaccinium': ['blueberry', 'vaccinium'],
         'blueberry': ['vaccinium', 'blueberry'],
-        'cucurbita': ['squash', 'pumpkin', 'cucurbita'],
+        'cucurbita': ['squash', 'pumpkin', 'cucurbita', 'zucchini'],
         'squash': ['cucurbita', 'squash'],
-        'glycine': ['soybean', 'soy', 'glycine'],
+        'glycine': ['soybean', 'soy', 'glycine', 'soya'],
         'soybean': ['glycine', 'soybean', 'soy'],
-        'ocimum': ['basil', 'tulsi', 'ocimum'],
-        'basil': ['ocimum', 'basil'],
-        'tulsi': ['ocimum', 'tulsi', 'basil'],
     }
     
     # Add mapped terms
@@ -129,54 +129,75 @@ def filter_disease_predictions(species_results, disease_result):
         if term in plant_mappings:
             search_terms.update(plant_mappings[term])
     
-    # Filter predictions
-    matched_predictions = []
-    
-    for prediction in disease_result['predictions']:
-        disease_plant = prediction['plant'].lower().strip()
-        
-        # Check if disease plant matches identified species
-        matches = False
-        
-        # Direct term matching
+    # Check if disease plant matches identified species
+    def plants_match(disease_plant_name, search_terms):
         for term in search_terms:
-            if term and disease_plant and (term in disease_plant or disease_plant in term):
-                matches = True
-                break
-        
-        # Check if disease plant is in family (loose match)
-        if not matches and family:
-            if disease_plant in family or family in disease_plant:
-                matches = True
-        
-        if matches:
-            matched_predictions.append(prediction)
+            if term and disease_plant_name and (term in disease_plant_name or disease_plant_name in term):
+                return True
+        return False
     
-    # Update disease result based on matches
-    if matched_predictions:
-        # Found matching diseases - show them
-        disease_result['predictions'] = matched_predictions
-        disease_result['top_prediction'] = matched_predictions[0]
-        disease_result['filtered'] = True
-        disease_result['filter_message'] = f"Disease analysis for {top_species.scientific_name}"
-    else:
-        # No matching diseases found - plant is healthy
-        display_name = top_species.common_names[0] if top_species.common_names else top_species.scientific_name
-        
-        healthy_prediction = {
-            'plant': display_name,
-            'disease': 'Healthy',
-            'confidence': 95.0,  # High confidence for "no disease found"
-            'is_healthy': True
-        }
-        
-        disease_result['predictions'] = [healthy_prediction]
-        disease_result['top_prediction'] = healthy_prediction
-        disease_result['filtered'] = True
-        disease_result['filter_message'] = f"No diseases detected - Plant appears healthy"
+    match_found = plants_match(disease_plant, search_terms)
     
+    # CASE 1: Species and disease match - Filter and show only matching
+    if match_found:
+        matched_predictions = []
+        for prediction in disease_result['predictions']:
+            pred_plant = prediction['plant'].lower().strip()
+            if plants_match(pred_plant, search_terms):
+                matched_predictions.append(prediction)
+        
+        if matched_predictions:
+            disease_result['predictions'] = matched_predictions[:5]  # Top 5
+            disease_result['top_prediction'] = matched_predictions[0]
+            disease_result['filtered'] = True
+            disease_result['filter_message'] = f"✓ Results filtered for {top_species.scientific_name}"
+            return disease_result
+    
+    # CASE 2: High confidence mismatch - Show disease results with strong warning
+    if species_confidence > 60 and disease_confidence > 50:
+        disease_result['filtered'] = False
+        disease_result['filter_message'] = (
+            f"⚠️ MISMATCH DETECTED: Species identified as '{top_species.scientific_name}' "
+            f"({species_confidence:.1f}% confidence), but disease model detected '{top_disease['plant']}' "
+            f"({disease_confidence:.1f}% confidence). This may indicate:\n"
+            f"• Wrong plant species identification\n"
+            f"• Disease model limitation\n"
+            f"• Poor image quality\n"
+            f"Showing unfiltered disease results below."
+        )
+        return disease_result
+    
+    # CASE 3: Low confidence on both - Show everything with disclaimer
+    if species_confidence < 60 or disease_confidence < 50:
+        disease_result['filtered'] = False
+        disease_result['filter_message'] = (
+            f"⚠️ LOW CONFIDENCE: Species ID: {species_confidence:.1f}%, "
+            f"Disease detection: {disease_confidence:.1f}%. "
+            f"Results may be unreliable. Consider:\n"
+            f"• Taking a clearer photo\n"
+            f"• Better lighting conditions\n"
+            f"• Closer view of leaves\n"
+            f"Showing all results for manual review."
+        )
+        return disease_result
+    
+    # CASE 4: Mismatch with low disease confidence - Likely healthy or unsupported
+    if not match_found and disease_confidence < 50:
+        disease_result['filtered'] = False
+        disease_result['filter_message'] = (
+            f"ℹ️ Species identified as '{top_species.scientific_name}' ({species_confidence:.1f}%). "
+            f"Disease detection has low confidence ({disease_confidence:.1f}%). "
+            f"Plant may be healthy or disease model doesn't support this species."
+        )
+        return disease_result
+    
+    # CASE 5: Default fallback - show unfiltered with generic message
+    disease_result['filtered'] = False
+    disease_result['filter_message'] = (
+        f"ℹ️ Showing unfiltered results. Species: {top_species.scientific_name} "
+        f"({species_confidence:.1f}%), Disease detection: {disease_confidence:.1f}%"
+    )
     return disease_result
-
 
 @app.get("/")
 async def root():
@@ -283,6 +304,7 @@ async def detect_disease(file: UploadFile = File(...)):
         
         image_data = await file.read()
         result = await disease_service.detect_disease(image_data)
+        print (result)
         
         return result
         

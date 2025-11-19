@@ -623,6 +623,7 @@
             // Display disease
             if (data.disease_detection.success && 
                 data.disease_detection.predictions.length > 0) {
+                window.lastDiseaseData = data.disease_detection; // Store for filter message
                 displayDiseaseResults(data.disease_detection.predictions, diseaseResults);
             } else if (data.disease_detection.error) {
                 diseaseResults.innerHTML = `<div class="warning-message">${data.disease_detection.error}</div>`;
@@ -675,6 +676,7 @@
             const diseaseResults = document.getElementById('diseaseResults');
             
             if (data.success && data.predictions.length > 0) {
+                window.lastDiseaseData = data; // Store for filter message
                 displayDiseaseResults(data.predictions, diseaseResults);
             } else if (data.error) {
                 diseaseResults.innerHTML = `<div class="warning-message">${data.error}</div>`;
@@ -718,9 +720,55 @@
             });
         }
 
+        // Format multi-line filter messages
+        function formatFilterMessage(message) {
+            const lines = message.split('\n');
+            if (lines.length === 1) {
+                return message;
+            }
+            
+            let html = `<strong>${lines[0]}</strong>`;
+            if (lines.length > 1) {
+                html += "<ul style='margin: 10px 0 0 20px; font-size: 0.9em;'>";
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (line && line.startsWith('•')) {
+                        html += `<li>${line.substring(1).trim()}</li>`;
+                    } else if (line) {
+                        html += `<li>${line}</li>`;
+                    }
+                }
+                html += "</ul>";
+            }
+            return html;
+        }
+
         // Display disease results
         function displayDiseaseResults(predictions, container) {
             container.innerHTML = '';
+            
+            // Show filter message if present (from backend)
+            const filterMsg = window.lastDiseaseData?.filter_message;
+            if (filterMsg) {
+                const msgDiv = document.createElement('div');
+                
+                // Determine message type by icon
+                if (filterMsg.includes('⚠️ MISMATCH') || filterMsg.includes('⚠️ LOW')) {
+                    msgDiv.className = 'warning-message';
+                } else if (filterMsg.includes('✓')) {
+                    msgDiv.className = 'success';
+                } else {
+                    msgDiv.className = 'warning-message';
+                    msgDiv.style.background = '#e3f2fd';
+                    msgDiv.style.borderLeftColor = '#2196f3';
+                    msgDiv.style.color = '#1565c0';
+                }
+                
+                msgDiv.style.marginBottom = '15px';
+                msgDiv.innerHTML = formatFilterMessage(filterMsg);
+                container.appendChild(msgDiv);
+            }
+            
             predictions.forEach((prediction, index) => {
                 const card = document.createElement('div');
                 const isHealthy = prediction.is_healthy;
