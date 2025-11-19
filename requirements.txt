@@ -4,3 +4,6 @@ python-multipart
 httpx
 pydantic
 python-dotenv
+torch
+torchvision
+Pillow
