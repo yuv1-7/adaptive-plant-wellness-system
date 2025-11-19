@@ -1,5 +1,7 @@
-import httpx
-from typing import Dict, Any
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.prompts import ChatPromptTemplate
+from pydantic import BaseModel, Field
+from typing import Dict, Any, List
 import os
 from dotenv import load_dotenv
 import json
@@ -7,76 +9,98 @@ import json
 load_dotenv()
 
 
+class DailyTask(BaseModel):
+    day: str = Field(description="Day of the week")
+    task: str = Field(description="Brief task name")
+    description: str = Field(description="Detailed task instructions")
+    priority: str = Field(description="Priority level: high, medium, or low")
+
+
+class WeeklySchedule(BaseModel):
+    week: int = Field(description="Week number")
+    title: str = Field(description="Week title")
+    tasks: List[DailyTask] = Field(description="List of daily tasks")
+    focus: str = Field(description="Main focus for the week")
+    tips: List[str] = Field(description="Tips for this week")
+
+
+class PlantSummary(BaseModel):
+    name: str = Field(description="Plant name")
+    care_level: str = Field(description="Care difficulty level")
+    key_points: List[str] = Field(description="3-5 key care points")
+
+
+class CarePlan(BaseModel):
+    plant_summary: PlantSummary
+    weekly_schedule: List[WeeklySchedule]
+    general_care_tips: List[str]
+    warning_signs: List[str]
+    seasonal_notes: str
+
+
 class GeminiCareplanGenerator:
-    """Service for generating week-wise care plans using Gemini LLM"""
-    
+    """Service for generating week-wise care plans using Gemini LLM with LangChain LCEL"""
+
     def __init__(self):
         self.api_key = os.getenv("gemini_api_key")
-        self.base_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
-        
-    async def generate_weekly_care_plan(self, plant_care_guide: Dict[str, Any], weeks: int = 4) -> Dict[str, Any]:
-        """
-        Generate a week-wise care plan using Gemini LLM
-        
-        Args:
-            plant_care_guide: Plant care information from Perenual
-            weeks: Number of weeks to generate plan for (default: 4)
-            
-        Returns:
-            Structured weekly care plan
-        """
+        if not self.api_key:
+            raise ValueError("gemini_api_key not found in environment variables")
+
+        # Initialize the Google Gemini model
+        self.llm = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash",
+            google_api_key=self.api_key,
+            temperature=0.7,
+            max_output_tokens=2048,
+        )
+
+    async def generate_weekly_care_plan(
+        self, plant_care_guide: Dict[str, Any], weeks: int = 4
+    ) -> Dict[str, Any]:
+        """Generate care plan using LCEL pipe-chaining"""
+
         try:
-            # Create prompt for Gemini
-            prompt = self._create_care_plan_prompt(plant_care_guide, weeks)
-            
-            async with httpx.AsyncClient(timeout=60.0) as client:
-                url = f"{self.base_url}?key={self.api_key}"
-                
-                payload = {
-                    "contents": [{
-                        "parts": [{
-                            "text": prompt
-                        }]
-                    }],
-                    "generationConfig": {
-                        "temperature": 0.7,
-                        "topK": 40,
-                        "topP": 0.95,
-                        "maxOutputTokens": 2048,
-                    }
-                }
-                
-                response = await client.post(url, json=payload)
-                response.raise_for_status()
-                data = response.json()
-                
-                # Extract generated text
-                generated_text = data['candidates'][0]['content']['parts'][0]['text']
-                
-                # Parse the JSON response
-                care_plan = self._parse_care_plan(generated_text, plant_care_guide)
-                
-                return care_plan
-                
-        except httpx.HTTPStatusError as e:
-            print(f"Gemini API error: {e}")
-            return {'success': False, 'error': 'Failed to generate care plan'}
+            prompt_text = self._create_care_plan_prompt(plant_care_guide, weeks)
+
+            # Updated LCEL prompt
+            prompt = ChatPromptTemplate.from_messages(
+                [
+                    (
+                        "system",
+                        "You are a professional horticulturist creating detailed plant care plans. "
+                        "Always respond with valid JSON only. No markdown, no backticks.",
+                    ),
+                    ("user", "{input}"),
+                ]
+            )
+
+            # LCEL PIPE OPERATOR (new way)
+            chain = prompt | self.llm
+
+            # Async call → latest LCEL way
+            response = await chain.ainvoke({"input": prompt_text})
+
+            care_plan = self._parse_care_plan(response.content, plant_care_guide)
+            return care_plan
+
         except Exception as e:
             print(f"Error generating care plan: {e}")
-            return {'success': False, 'error': str(e)}
-    
+            return {
+                "success": False,
+                "error": f"Failed to generate care plan: {str(e)}",
+            }
+
     def _create_care_plan_prompt(self, care_guide: Dict[str, Any], weeks: int) -> str:
-        """Create a detailed prompt for Gemini to generate care plan"""
-        
-        plant_info = care_guide.get('plant_info', {})
-        watering = care_guide.get('watering', {})
-        light = care_guide.get('light', {})
-        soil = care_guide.get('soil', {})
-        maintenance = care_guide.get('maintenance', {})
-        environment = care_guide.get('environment', {})
-        additional = care_guide.get('additional_info', {})
-        
-        prompt = f"""You are a professional horticulturist. Create a detailed {weeks}-week care plan for the following plant.
+        plant_info = care_guide.get("plant_info", {})
+        watering = care_guide.get("watering", {})
+        light = care_guide.get("light", {})
+        soil = care_guide.get("soil", {})
+        maintenance = care_guide.get("maintenance", {})
+        environment = care_guide.get("environment", {})
+        additional = care_guide.get("additional_info", {})
+
+        prompt = f"""
+Create a detailed {weeks}-week care plan for the following plant.
 
 Plant Information:
 - Name: {plant_info.get('name', 'Unknown')}
@@ -96,84 +120,73 @@ Care Requirements:
 - Flowering Season: {additional.get('flowering_season', 'N/A')}
 - Pest Susceptibility: {', '.join(additional.get('pest_susceptibility', ['None noted']))}
 
-Please generate a week-by-week care plan in the following JSON format:
+Generate JSON using this exact structure:
 
 {{
   "plant_summary": {{
-    "name": "Plant name",
-    "care_level": "Easy/Moderate/High",
-    "key_points": ["Key point 1", "Key point 2", "Key point 3"]
+    "name": "",
+    "care_level": "",
+    "key_points": []
   }},
   "weekly_schedule": [
     {{
       "week": 1,
-      "title": "Week 1: Getting Started",
+      "title": "",
       "tasks": [
         {{
-          "day": "Monday",
-          "task": "Check soil moisture",
-          "description": "Detailed instruction",
-          "priority": "high/medium/low"
+          "day": "",
+          "task": "",
+          "description": "",
+          "priority": "high"
         }}
       ],
-      "focus": "What to focus on this week",
-      "tips": ["Tip 1", "Tip 2"]
+      "focus": "",
+      "tips": []
     }}
   ],
-  "general_care_tips": ["Overall tip 1", "Overall tip 2", "Overall tip 3"],
-  "warning_signs": ["Sign 1: What to do", "Sign 2: What to do"],
-  "seasonal_notes": "Any seasonal considerations"
+  "general_care_tips": [],
+  "warning_signs": [],
+  "seasonal_notes": ""
 }}
 
-Important Guidelines:
-1. Make the schedule practical and easy to follow
-2. Include specific days for watering based on the plant's needs
-3. Add fertilizing schedule if appropriate
-4. Include pruning/deadheading tasks in appropriate weeks
-5. Mention pest inspection days
-6. Add light/location adjustment reminders
-7. Include soil check tasks
-8. Make tasks specific and actionable
-9. Vary tasks throughout the week (don't make every day watering)
-10. Consider the plant's growth cycle and adjust weekly tasks accordingly
-
-Respond ONLY with the valid JSON. Do not include any markdown formatting or backticks."""
+Guidelines:
+- Always return pure JSON
+- No extra text, no markdown
+- Include watering, pruning, fertilizing, pest-checking, soil checks
+"""
 
         return prompt
-    
+
     def _parse_care_plan(self, generated_text: str, care_guide: Dict[str, Any]) -> Dict[str, Any]:
-        """Parse and validate the generated care plan"""
+        """Parse and validate the returned JSON"""
+
         try:
-            # Remove markdown formatting if present
             text = generated_text.strip()
-            if text.startswith('```json'):
-                text = text[7:]
-            if text.startswith('```'):
-                text = text[3:]
-            if text.endswith('```'):
-                text = text[:-3]
-            text = text.strip()
-            
-            # Parse JSON
+
+            # Remove markdown if model mistakenly adds any
+            if text.startswith("```"):
+                text = text.strip("`").strip()
+
             care_plan = json.loads(text)
-            
-            # Add metadata
-            care_plan['success'] = True
-            care_plan['plant_info'] = care_guide.get('plant_info', {})
-            care_plan['source_data'] = {
-                'watering': care_guide.get('watering', {}),
-                'light': care_guide.get('light', {}),
-                'soil': care_guide.get('soil', {}),
-                'maintenance': care_guide.get('maintenance', {})
-            }
-            
+
+            required = [
+                "plant_summary",
+                "weekly_schedule",
+                "general_care_tips",
+                "warning_signs",
+                "seasonal_notes",
+            ]
+            for k in required:
+                if k not in care_plan:
+                    raise ValueError(f"Missing key: {k}")
+
+            care_plan["success"] = True
+            care_plan["plant_info"] = care_guide.get("plant_info", {})
             return care_plan
-            
-        except json.JSONDecodeError as e:
-            print(f"Error parsing JSON: {e}")
-            print(f"Generated text: {generated_text}")
+
+        except Exception as e:
             return {
-                'success': False,
-                'error': 'Failed to parse care plan',
-                'raw_text': generated_text
+                "success": False,
+                "error": f"Invalid JSON returned: {str(e)}",
+                "raw_text": generated_text[:1000],
             }
