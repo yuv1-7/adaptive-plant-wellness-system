@@ -353,7 +353,6 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
-        /* Markdown rendering enhancements */
         .care-plan-content code {
             background: #f4f4f4;
             padding: 2px 6px;
@@ -388,17 +387,16 @@
             color: white;
         }
     </style>
-    <!-- Marked.js for Markdown rendering -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>🌿 Plant Analysis & Care System</h1>
-        <p class="subtitle">Advanced plant identification, disease detection & personalized care planning</p>
+        <p class="subtitle">Advanced plant identification, disease detection & personalized 7-day care planning</p>
 
         <div class="mode-selector">
             <button class="mode-btn active" data-mode="full">🔬 Full Analysis</button>
-            <button class="mode-btn" data-mode="full-care">🔬 Full + Care Plan</button>
+            <button class="mode-btn" data-mode="full-care">🔬 Full + 7-Day Care Plan</button>
             <button class="mode-btn" data-mode="species">🔍 Species Only</button>
             <button class="mode-btn" data-mode="disease">🩺 Disease Only</button>
         </div>
@@ -460,7 +458,7 @@
             if (currentMode === 'full') {
                 actionButtons.innerHTML = '<button class="btn" onclick="analyzeImage(\'full\', false)">🔬 Full Analysis</button>';
             } else if (currentMode === 'full-care') {
-                actionButtons.innerHTML = '<button class="btn" onclick="analyzeImage(\'full\', true)">🔬 Analyze & Generate Care Plan</button>';
+                actionButtons.innerHTML = '<button class="btn" onclick="analyzeImage(\'full\', true)">🔬 Analyze & Generate 7-Day Care Plan</button>';
             } else if (currentMode === 'species') {
                 actionButtons.innerHTML = '<button class="btn" onclick="analyzeImage(\'species\', false)">🔍 Identify Species</button>';
             } else if (currentMode === 'disease') {
@@ -513,7 +511,7 @@
             document.querySelectorAll('.btn').forEach(btn => btn.disabled = true);
 
             if (withCarePlan) {
-                loadingText.textContent = 'Analyzing plant and generating personalized care plan... This may take 30-60 seconds.';
+                loadingText.textContent = 'Analyzing plant and generating personalized 7-day care plan... This may take 30-60 seconds.';
             } else {
                 loadingText.textContent = 'Analyzing image...';
             }
@@ -524,7 +522,7 @@
             try {
                 let url;
                 if (mode === 'full') {
-                    url = `/api/analyze?generate_care_plan=${withCarePlan}&weeks=4`;
+                    url = `/api/analyze?generate_care_plan=${withCarePlan}&days=7`;
                 } else if (mode === 'species') {
                     url = '/api/identify';
                 } else if (mode === 'disease') {
@@ -680,7 +678,7 @@
 
             const html = `
                 <div class="care-plan-header">
-                    <h2>📋 ${carePlan.weeks}-Week Personalized Care Plan</h2>
+                    <h2>📋 ${carePlan.days}-Day Personalized Care Plan</h2>
                     <div class="care-plan-meta">
                         <span>🌱 ${carePlan.plant_name}</span>
                         <span>🔬 ${carePlan.scientific_name}</span>
@@ -693,7 +691,6 @@
             carePlanSection.innerHTML = html;
             container.appendChild(carePlanSection);
 
-            // Render markdown using marked.js
             const carePlanTextDiv = document.getElementById('carePlanText');
             carePlanTextDiv.innerHTML = marked.parse(carePlan.care_plan_text);
         }

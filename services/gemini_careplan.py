@@ -8,47 +8,44 @@ load_dotenv()
 
 
 class GeminiCareplanGenerator:
-    """Service for generating week-wise care plans using Gemini LLM (Natural Language Version)"""
+    """Service for generating day-by-day care plans using Gemini LLM"""
 
     def __init__(self):
         self.api_key = os.getenv("gemini_api_key")
         if not self.api_key:
             raise ValueError("gemini_api_key not found in environment variables")
 
-        # Latest Google Gemini initialization
         self.llm = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",
             google_api_key=self.api_key,
-            temperature=0.7,
-            max_output_tokens=3096,
+            temperature=0.7
         )
 
-    async def generate_weekly_care_plan(
-        self, plant_care_guide: Dict[str, Any], weeks: int = 4
+    async def generate_daily_care_plan(
+        self, plant_care_guide: Dict[str, Any], days: int = 7
     ) -> Dict[str, Any]:
-        """Generate natural language care plan using LCEL (latest pipeline style)"""
+        """Generate natural language care plan for specified number of days"""
 
         try:
-            # Construct prompt text
-            prompt_text = self._create_care_plan_prompt(plant_care_guide, weeks)
+            prompt_text = self._create_care_plan_prompt(plant_care_guide, days)
 
-            # Correct LCEL prompt template syntax
             prompt = ChatPromptTemplate.from_messages(
                 [
                     (
                         "system",
                         "You are a professional horticulturist and plant care expert. "
-                        "Create detailed, practical, and easy-to-follow care plans in natural language. "
-                        "Be specific, friendly, and educational. Use clear formatting with headings and bullet points."
+                        "Create detailed, practical, and easy-to-follow daily care plans. "
+                        "Be specific about what to do each day, friendly, and educational. "
+                        "Use clear formatting with headings and bullet points. "
+                        "IMPORTANT: Complete ALL sections fully without cutting off. "
+                        "Ensure the entire care plan is generated from Day 1 through the final day, "
+                        "including all 5 main sections."
                     ),
                     ("user", "{input}"),
                 ]
             )
 
-            # LCEL pipeline using "|"
             chain = prompt | self.llm
-
-            # Produce output
             response = await chain.ainvoke({"input": prompt_text})
 
             return {
@@ -57,7 +54,7 @@ class GeminiCareplanGenerator:
                 "scientific_name": plant_care_guide.get("plant_info", {}).get("scientific_name", "Unknown"),
                 "care_level": plant_care_guide.get("plant_info", {}).get("care_level", "Unknown"),
                 "care_plan_text": response.content,
-                "weeks": weeks
+                "days": days
             }
 
         except Exception as e:
@@ -67,7 +64,7 @@ class GeminiCareplanGenerator:
                 "error": f"Failed to generate care plan: {str(e)}",
             }
 
-    def _create_care_plan_prompt(self, care_guide: Dict[str, Any], weeks: int) -> str:
+    def _create_care_plan_prompt(self, care_guide: Dict[str, Any], days: int) -> str:
         """Build the natural language prompt for Gemini"""
 
         plant_info = care_guide.get("plant_info", {})
@@ -78,7 +75,6 @@ class GeminiCareplanGenerator:
         environment = care_guide.get("environment", {})
         additional = care_guide.get("additional_info", {})
 
-        # Build comprehensive plant data
         watering_info = f"{watering.get('frequency', 'Unknown')}"
         if watering.get("period"):
             watering_info += f" ({watering.get('period')})"
@@ -94,8 +90,8 @@ class GeminiCareplanGenerator:
         pest_info = ", ".join(additional.get("pest_susceptibility", ["None noted"]))
 
         prompt = f"""
-Create a comprehensive {weeks}-week care plan for the following plant. 
-Write in natural, conversational language that a plant owner can easily follow.
+Create a comprehensive {days}-day daily care plan for the following plant. 
+Write in natural, conversational language that a plant owner can easily follow each day.
 
 ## PLANT INFORMATION
 **Common Name:** {plant_info.get('name', 'Unknown')}
@@ -117,48 +113,52 @@ Write in natural, conversational language that a plant owner can easily follow.
 **Edible Fruit:** {'Yes' if additional.get('edible_fruit') else 'No'}
 
 ## TASK
-Write a detailed {weeks}-week care plan in natural language. Structure your response as follows:
+Write a detailed {days}-day daily care plan. You MUST complete ALL {days} days and all 5 sections below.
 
-### 1. Plant Overview & Care Level
-- Brief introduction
-- Why people like growing it
-- Care difficulty summary
+### 1. Plant Overview & Getting Started
+Write 3-4 paragraphs covering:
+- Brief introduction to this plant (2-3 sentences)
+- What makes it special (2-3 sentences)
+- Care difficulty level (1-2 sentences)
+- What to expect in the first {days} days (2-3 sentences)
 
-### 2. Week-by-Week Care Schedule
-For each of the {weeks} weeks, include:
-- **Week X: [Catchy Title]**
-  - Main focus
-  - Daily/weekly actionable tasks
-  - Monitoring checklist
-  - Tips & best practices
-  - Common mistakes to avoid
+### 2. Daily Care Schedule
+Provide detailed tasks for EACH of the {days} days. For each day include:
 
-Include tasks such as:
-- Watering with timing & method
-- Light/position adjustments
-- Soil checks & fertilizing timing
-- Pruning, trimming, grooming
-- Pest inspection
-- Seasonal adjustments
+**Day X: [Catchy Title]**
+- **Morning Tasks:** 2-3 specific actions
+- **Afternoon/Evening Tasks:** 1-2 specific actions
+- **What to Observe Today:** 1-2 items
+- **Key Tip for the Day:** 1 practical tip
 
-### 3. General Care Guidelines
-- Long-term care
-- Seasonal care
-- Propagation tips
-- Troubleshooting issues
+Make each day unique with different focuses:
+- Day 1: Welcome & placement
+- Day 2: Soil & watering assessment
+- Day 3: Leaf inspection & grooming
+- Day 4: Light & temperature check
+- Day 5: Mid-week wellness check
+- Day 6: Pest patrol
+- Day 7: Week review & future planning
 
-### 4. Warning Signs to Watch For
-- Overwatering/underwatering
-- Pests/diseases
-- Nutrient deficiencies
-- Heat/light stress
+### 3. Quick Daily Checklist (Keep this concise - 5-6 items max)
+Simple 2-5 minute daily routine:
+- ✓ Item 1
+- ✓ Item 2
+- ✓ Item 3
 
-### 5. Pro Tips for Success
-- Expert insights
-- High-impact habits
-- Bonus optional techniques
+### 4. Warning Signs to Watch For (Keep concise - 3-4 categories)
+What to look for:
+- **Normal appearance:** Brief description
+- **Problem signs:** 2-3 key warnings
+- **When to act:** Brief advice
 
-Make it practical, specific, and encouraging.
+### 5. Pro Tips for Success (Keep concise - 3-4 tips)
+Most important advice:
+- Tip 1
+- Tip 2
+- Tip 3
+
+CRITICAL: You MUST complete the entire plan including ALL {days} days in section 2 and all other sections. Do not stop mid-generation.
 """
 
         return prompt

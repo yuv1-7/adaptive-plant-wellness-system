@@ -214,7 +214,7 @@ async def root():
 async def analyze_plant(
     file: UploadFile = File(...),
     generate_care_plan: bool = Query(False, description="Generate care plan for identified plant"),
-    weeks: int = Query(4, ge=1, le=12, description="Number of weeks for care plan")
+    days: int = Query(7, ge=1, le=30, description="Number of days for care plan (default: 7)")
 ):
     """
     Complete plant analysis: species identification + disease detection + optional care plan
@@ -252,7 +252,7 @@ async def analyze_plant(
                 care_guide = await perenual_service.get_plant_care_guide(top_plant.common_names[0])
             
             if care_guide:
-                care_plan = await gemini_service.generate_weekly_care_plan(care_guide, weeks)
+                care_plan = await gemini_service.generate_daily_care_plan(care_guide, days)
                 response['care_plan'] = care_plan
             else:
                 response['care_plan'] = {
@@ -307,17 +307,17 @@ async def detect_disease(file: UploadFile = File(...)):
 @app.post("/api/care-plan")
 async def generate_care_plan(
     plant_name: str = Query(..., description="Scientific or common name of the plant"),
-    weeks: int = Query(4, ge=1, le=12, description="Number of weeks for the care plan")
+    days: int = Query(7, ge=1, le=30, description="Number of days for the care plan (default: 7)")
 ):
     """
-    Generate a week-wise care plan for a plant
+    Generate a day-by-day care plan for a plant
     
     Args:
         plant_name: Scientific or common name of the plant
-        weeks: Number of weeks (1-12, default: 4)
+        days: Number of days (1-30, default: 7)
     
     Returns:
-        Detailed weekly care plan
+        Detailed daily care plan
     """
     try:
         # Get plant care information from Perenual
@@ -330,7 +330,7 @@ async def generate_care_plan(
             )
         
         # Generate care plan using Gemini
-        care_plan = await gemini_service.generate_weekly_care_plan(care_guide, weeks)
+        care_plan = await gemini_service.generate_daily_care_plan(care_guide, days)
         
         if not care_plan.get('success'):
             raise HTTPException(
