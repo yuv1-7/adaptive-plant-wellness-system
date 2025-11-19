@@ -4,3 +4,8 @@ python-multipart
 httpx
 pydantic
 python-dotenv
+torch
+torchvision
+pillow
+langchain-google-genai
+langchain-core
