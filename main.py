@@ -160,7 +160,6 @@ def filter_disease_predictions(species_results, disease_result):
             f"⚠️ MISMATCH DETECTED: Species identified as '{top_species.scientific_name}' "
             f"({species_confidence:.1f}% confidence), but disease model detected '{top_disease['plant']}' "
             f"({disease_confidence:.1f}% confidence). This may indicate:\n"
-            f"• Wrong plant species identification\n"
             f"• Disease model limitation\n"
             f"• Poor image quality\n"
             f"Showing unfiltered disease results below."
