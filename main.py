@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -8,6 +8,8 @@ from typing import List, Optional
 
 from services.plant_identifier import PlantIdentifierService
 from services.disease_detector import PlantDiseaseDetector
+from services.perenual_service import PerenualService
+from services.gemini_careplan import GeminiCareplanGenerator
 from models.response_models import (
     PlantIdentificationResponse, 
     ErrorResponse,
@@ -16,7 +18,7 @@ from models.response_models import (
 
 app = FastAPI(
     title="Plant Species Identifier & Disease Detection API",
-    version="2.0.0"
+    version="3.0.0"
 )
 
 # CORS middleware
@@ -35,11 +37,12 @@ app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
 # Initialize services
 plant_service = PlantIdentifierService()
 disease_service = PlantDiseaseDetector()
+perenual_service = PerenualService()
+gemini_service = GeminiCareplanGenerator()
 
 
 def extract_plant_name(species_name: str) -> str:
     """Extract primary plant name from scientific name"""
-    # Common patterns: "Genus species" -> "Genus"
     return species_name.split()[0].lower() if species_name else ""
 
 
@@ -60,7 +63,6 @@ def filter_disease_predictions(species_results, disease_result):
     3. If both have low confidence -> show both unfiltered with disclaimer
     """
     if not species_results or len(species_results) == 0:
-        # No species identified, return original disease results
         disease_result['filtered'] = False
         disease_result['filter_message'] = "No species identified - showing raw disease detection"
         return disease_result
@@ -89,7 +91,7 @@ def filter_disease_predictions(species_results, disease_result):
     search_terms.add(identified_genus)
     search_terms.update(common_names)
     
-    # Expanded plant mappings (covers more cases)
+    # Expanded plant mappings
     plant_mappings = {
         'solanum': ['tomato', 'potato', 'solanum', 'lycopersicon', 'eggplant', 'aubergine'],
         'lycopersicon': ['tomato', 'solanum'],
@@ -147,7 +149,7 @@ def filter_disease_predictions(species_results, disease_result):
                 matched_predictions.append(prediction)
         
         if matched_predictions:
-            disease_result['predictions'] = matched_predictions[:5]  # Top 5
+            disease_result['predictions'] = matched_predictions[:5]
             disease_result['top_prediction'] = matched_predictions[0]
             disease_result['filtered'] = True
             disease_result['filter_message'] = f"✓ Results filtered for {top_species.scientific_name}"
@@ -180,7 +182,7 @@ def filter_disease_predictions(species_results, disease_result):
         )
         return disease_result
     
-    # CASE 4: Mismatch with low disease confidence - Likely healthy or unsupported
+    # CASE 4: Mismatch with low disease confidence
     if not match_found and disease_confidence < 50:
         disease_result['filtered'] = False
         disease_result['filter_message'] = (
@@ -190,13 +192,14 @@ def filter_disease_predictions(species_results, disease_result):
         )
         return disease_result
     
-    # CASE 5: Default fallback - show unfiltered with generic message
+    # CASE 5: Default fallback
     disease_result['filtered'] = False
     disease_result['filter_message'] = (
         f"ℹ️ Showing unfiltered results. Species: {top_species.scientific_name} "
         f"({species_confidence:.1f}%), Disease detection: {disease_confidence:.1f}%"
     )
     return disease_result
+
 
 @app.get("/")
 async def root():
@@ -208,23 +211,18 @@ async def root():
 
 
 @app.post("/api/analyze")
-async def analyze_plant(file: UploadFile = File(...)):
+async def analyze_plant(
+    file: UploadFile = File(...),
+    generate_care_plan: bool = Query(False, description="Generate care plan for identified plant"),
+    weeks: int = Query(4, ge=1, le=12, description="Number of weeks for care plan")
+):
     """
-    Complete plant analysis: species identification + disease detection
+    Complete plant analysis: species identification + disease detection + optional care plan
     Disease results are filtered to match identified species.
-    
-    Args:
-        file: Image file (JPEG, PNG, etc.)
-    
-    Returns:
-        Combined results with species information and filtered disease detection
     """
     try:
         if not file.content_type.startswith('image/'):
-            raise HTTPException(
-                status_code=400,
-                detail="File must be an image"
-            )
+            raise HTTPException(status_code=400, detail="File must be an image")
         
         image_data = await file.read()
         
@@ -236,38 +234,46 @@ async def analyze_plant(file: UploadFile = File(...)):
         if species_result.success and species_result.results:
             disease_result = filter_disease_predictions(species_result.results, disease_result)
         
-        return {
+        response = {
             "success": True,
             "species_identification": species_result.dict(),
             "disease_detection": disease_result
         }
         
+        # Generate care plan if requested and plant identified
+        if generate_care_plan and species_result.success and species_result.results:
+            top_plant = species_result.results[0]
+            
+            # Try scientific name first, then common names
+            care_guide = await perenual_service.get_plant_care_guide(top_plant.scientific_name)
+            
+            if not care_guide and top_plant.common_names:
+                # Try with first common name
+                care_guide = await perenual_service.get_plant_care_guide(top_plant.common_names[0])
+            
+            if care_guide:
+                care_plan = await gemini_service.generate_weekly_care_plan(care_guide, weeks)
+                response['care_plan'] = care_plan
+            else:
+                response['care_plan'] = {
+                    'success': False,
+                    'error': f"Care information not available for {top_plant.scientific_name}"
+                }
+        
+        return response
+        
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error analyzing image: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Error analyzing image: {str(e)}")
 
 
 @app.post("/api/identify", response_model=PlantIdentificationResponse)
 async def identify_plant(file: UploadFile = File(...)):
-    """
-    Identify plant species from uploaded image (species only)
-    
-    Args:
-        file: Image file (JPEG, PNG, etc.)
-    
-    Returns:
-        Plant identification results with species information
-    """
+    """Identify plant species from uploaded image"""
     try:
         if not file.content_type.startswith('image/'):
-            raise HTTPException(
-                status_code=400,
-                detail="File must be an image"
-            )
+            raise HTTPException(status_code=400, detail="File must be an image")
         
         image_data = await file.read()
         result = await plant_service.identify_plant(image_data, file.filename)
@@ -277,42 +283,69 @@ async def identify_plant(file: UploadFile = File(...)):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error processing image: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
 
 
 @app.post("/api/detect-disease")
 async def detect_disease(file: UploadFile = File(...)):
-    """
-    Detect plant diseases from uploaded image (disease only, no filtering)
-    
-    Args:
-        file: Image file (JPEG, PNG, etc.)
-    
-    Returns:
-        Disease detection results (unfiltered)
-    """
+    """Detect plant diseases from uploaded image"""
     try:
         if not file.content_type.startswith('image/'):
-            raise HTTPException(
-                status_code=400,
-                detail="File must be an image"
-            )
+            raise HTTPException(status_code=400, detail="File must be an image")
         
         image_data = await file.read()
         result = await disease_service.detect_disease(image_data)
-        print (result)
         
         return result
         
     except HTTPException:
         raise
     except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error detecting disease: {str(e)}")
+
+
+@app.post("/api/care-plan")
+async def generate_care_plan(
+    plant_name: str = Query(..., description="Scientific or common name of the plant"),
+    weeks: int = Query(4, ge=1, le=12, description="Number of weeks for the care plan")
+):
+    """
+    Generate a week-wise care plan for a plant
+    
+    Args:
+        plant_name: Scientific or common name of the plant
+        weeks: Number of weeks (1-12, default: 4)
+    
+    Returns:
+        Detailed weekly care plan
+    """
+    try:
+        # Get plant care information from Perenual
+        care_guide = await perenual_service.get_plant_care_guide(plant_name)
+        
+        if not care_guide:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Plant '{plant_name}' not found in database"
+            )
+        
+        # Generate care plan using Gemini
+        care_plan = await gemini_service.generate_weekly_care_plan(care_guide, weeks)
+        
+        if not care_plan.get('success'):
+            raise HTTPException(
+                status_code=500,
+                detail=care_plan.get('error', 'Failed to generate care plan')
+            )
+        
+        return care_plan
+        
+    except HTTPException:
+        raise
+    except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Error detecting disease: {str(e)}"
+            detail=f"Error generating care plan: {str(e)}"
         )
 
 

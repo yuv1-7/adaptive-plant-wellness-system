@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plant Analysis System</title>
+    <title>Plant Analysis & Care System</title>
     <style>
         * {
             margin: 0;
@@ -25,7 +25,7 @@
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 1200px;
+            max-width: 1400px;
             width: 100%;
             padding: 40px;
         }
@@ -49,14 +49,15 @@
             justify-content: center;
             gap: 15px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
         .mode-btn {
             background: #f0f0f0;
             border: 2px solid #ddd;
-            padding: 12px 30px;
+            padding: 12px 25px;
             border-radius: 25px;
-            font-size: 1em;
+            font-size: 0.95em;
             cursor: pointer;
             transition: all 0.3s ease;
             color: #666;
@@ -210,10 +211,13 @@
             display: block;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 968px) {
             .results-grid {
                 grid-template-columns: 1fr;
             }
+        }
+
+        @media (max-width: 768px) {
             .mode-selector {
                 flex-direction: column;
             }
@@ -335,6 +339,290 @@
             color: #721c24;
         }
 
+        .care-plan-section {
+            margin-top: 30px;
+            grid-column: 1 / -1;
+        }
+
+        .care-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .care-summary h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .care-level {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .key-points {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .key-points li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .key-points li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .week-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .week-tab {
+            background: #f0f0f0;
+            border: 2px solid #ddd;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .week-tab:hover {
+            background: #e8e8e8;
+            border-color: #667eea;
+        }
+
+        .week-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .week-content {
+            display: none;
+        }
+
+        .week-content.active {
+            display: block;
+        }
+
+        .week-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .week-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .week-focus {
+            color: #666;
+            font-style: italic;
+        }
+
+        .daily-tasks {
+            display: grid;
+            gap: 15px;
+        }
+
+        .task-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .task-card.priority-high {
+            border-left-color: #e74c3c;
+        }
+
+        .task-card.priority-medium {
+            border-left-color: #f39c12;
+        }
+
+        .task-card.priority-low {
+            border-left-color: #3498db;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .task-day {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .task-priority {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .task-priority.priority-high {
+            background: #fee;
+            color: #e74c3c;
+        }
+
+        .task-priority.priority-medium {
+            background: #fef3e0;
+            color: #f39c12;
+        }
+
+        .task-priority.priority-low {
+            background: #e3f2fd;
+            color: #3498db;
+        }
+
+        .task-title {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .task-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .week-tips {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .week-tips h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .week-tips ul {
+            list-style: none;
+            color: #856404;
+        }
+
+        .week-tips li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .week-tips li:before {
+            content: "💡";
+            position: absolute;
+            left: 0;
+        }
+
+        .general-tips {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .general-tips h4 {
+            color: #0c5460;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .general-tips ul {
+            list-style: none;
+        }
+
+        .general-tips li {
+            padding: 8px 0;
+            color: #0c5460;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .general-tips li:before {
+            content: "🌱";
+            position: absolute;
+            left: 0;
+        }
+
+        .warning-signs {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .warning-signs h4 {
+            color: #721c24;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .warning-signs ul {
+            list-style: none;
+        }
+
+        .warning-signs li {
+            padding: 8px 0;
+            color: #721c24;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .warning-signs li:before {
+            content: "⚠️";
+            position: absolute;
+            left: 0;
+        }
+
+        .seasonal-note {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            color: #2e7d32;
+        }
+
+        .seasonal-note h4 {
+            margin-bottom: 8px;
+        }
+
         .error {
             background: #ffe6e6;
             border-left: 5px solid #ff4444;
@@ -380,13 +668,15 @@
 </head>
 <body>
     <div class="container">
-        <h1>🌿 Plant Analysis System</h1>
-        <p class="subtitle">Advanced plant species identification and disease detection</p>
+        <h1>🌿 Plant Analysis & Care System</h1>
+        <p class="subtitle">Advanced plant identification, disease detection & personalized care planning</p>
 
-        <!-- Mode Selector -->
         <div class="mode-selector">
             <button class="mode-btn active" data-mode="full">
                 🔬 Full Analysis
+            </button>
+            <button class="mode-btn" data-mode="full-care">
+                🔬 Full + Care Plan
             </button>
             <button class="mode-btn" data-mode="species">
                 🔍 Species Only
@@ -406,9 +696,7 @@
         <div id="previewContainer" class="preview-container hidden">
             <img id="previewImage" class="preview-image" alt="Preview">
             <br>
-            <div class="btn-group" id="actionButtons">
-                <!-- Buttons will be dynamically shown based on mode -->
-            </div>
+            <div class="btn-group" id="actionButtons"></div>
         </div>
 
         <div id="loading" class="loading hidden">
@@ -439,7 +727,6 @@
         let selectedFile = null;
         let currentMode = 'full';
 
-        // Mode selection
         modeButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 modeButtons.forEach(b => b.classList.remove('active'));
@@ -451,41 +738,22 @@
 
         function updateActionButtons() {
             if (!selectedFile) return;
-
             actionButtons.innerHTML = '';
 
             if (currentMode === 'full') {
-                actionButtons.innerHTML = `
-                    <button class="btn" onclick="analyzeImage('full')">
-                        🔬 Full Analysis
-                    </button>
-                `;
+                actionButtons.innerHTML = '<button class="btn" onclick="analyzeImage(\'full\', false)">🔬 Full Analysis</button>';
+            } else if (currentMode === 'full-care') {
+                actionButtons.innerHTML = '<button class="btn" onclick="analyzeImage(\'full\', true)">🔬 Analyze & Generate Care Plan</button>';
             } else if (currentMode === 'species') {
-                actionButtons.innerHTML = `
-                    <button class="btn btn-secondary" onclick="analyzeImage('species')">
-                        🔍 Identify Species
-                    </button>
-                `;
+                actionButtons.innerHTML = '<button class="btn btn-secondary" onclick="analyzeImage(\'species\', false)">🔍 Identify Species</button>';
             } else if (currentMode === 'disease') {
-                actionButtons.innerHTML = `
-                    <button class="btn btn-warning" onclick="analyzeImage('disease')">
-                        🩺 Detect Disease
-                    </button>
-                `;
+                actionButtons.innerHTML = '<button class="btn btn-warning" onclick="analyzeImage(\'disease\', false)">🩺 Detect Disease</button>';
             }
         }
 
-        // Click to upload
-        uploadArea.addEventListener('click', () => {
-            fileInput.click();
-        });
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
 
-        // File selected
-        fileInput.addEventListener('change', (e) => {
-            handleFile(e.target.files[0]);
-        });
-
-        // Drag and drop
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadArea.classList.add('drag-over');
@@ -501,7 +769,6 @@
             handleFile(e.dataTransfer.files[0]);
         });
 
-        // Handle file selection
         function handleFile(file) {
             if (!file || !file.type.startsWith('image/')) {
                 showMessage('Please select a valid image file', 'error');
@@ -520,20 +787,18 @@
             reader.readAsDataURL(file);
         }
 
-        // Analyze image based on mode
-        async function analyzeImage(mode) {
+        async function analyzeImage(mode, withCarePlan) {
             if (!selectedFile) return;
 
             loading.classList.remove('hidden');
             results.classList.add('hidden');
             message.classList.add('hidden');
-
-            // Disable all buttons
             document.querySelectorAll('.btn').forEach(btn => btn.disabled = true);
 
-            // Set loading text based on mode
-            if (mode === 'full') {
-                loadingText.textContent = 'Running full analysis (species + disease detection)...';
+            if (withCarePlan) {
+                loadingText.textContent = 'Running full analysis and generating personalized care plan...';
+            } else if (mode === 'full') {
+                loadingText.textContent = 'Running full analysis...';
             } else if (mode === 'species') {
                 loadingText.textContent = 'Identifying plant species...';
             } else if (mode === 'disease') {
@@ -544,16 +809,16 @@
             formData.append('file', selectedFile);
 
             try {
-                let endpoint;
+                let url;
                 if (mode === 'full') {
-                    endpoint = '/api/analyze';
+                    url = `/api/analyze?generate_care_plan=${withCarePlan}&weeks=4`;
                 } else if (mode === 'species') {
-                    endpoint = '/api/identify';
+                    url = '/api/identify';
                 } else if (mode === 'disease') {
-                    endpoint = '/api/detect-disease';
+                    url = '/api/detect-disease';
                 }
 
-                const response = await fetch(endpoint, {
+                const response = await fetch(url, {
                     method: 'POST',
                     body: formData
                 });
@@ -561,7 +826,7 @@
                 const data = await response.json();
 
                 if (mode === 'full' && data.success) {
-                    displayFullResults(data);
+                    displayFullResults(data, withCarePlan);
                 } else if (mode === 'species' && data.success) {
                     displaySpeciesOnlyResults(data);
                 } else if (mode === 'disease' && data.success) {
@@ -577,34 +842,19 @@
             }
         }
 
-        // Display full analysis results
-        function displayFullResults(data) {
+        function displayFullResults(data, withCarePlan) {
             resultsContainer.innerHTML = '';
             results.classList.remove('hidden');
 
             const grid = document.createElement('div');
             grid.className = 'results-grid';
 
-            // Species Section
             const speciesSection = document.createElement('div');
-            speciesSection.innerHTML = `
-                <div class="section-header">
-                    <span class="plant-icon">🔍</span>
-                    <span>Species Identification</span>
-                </div>
-                <div id="speciesResults"></div>
-            `;
+            speciesSection.innerHTML = '<div class="section-header"><span class="plant-icon">🔍</span><span>Species Identification</span></div><div id="speciesResults"></div>';
             grid.appendChild(speciesSection);
 
-            // Disease Section
             const diseaseSection = document.createElement('div');
-            diseaseSection.innerHTML = `
-                <div class="section-header">
-                    <span class="plant-icon">🔬</span>
-                    <span>Disease Detection</span>
-                </div>
-                <div id="diseaseResults"></div>
-            `;
+            diseaseSection.innerHTML = '<div class="section-header"><span class="plant-icon">🔬</span><span>Disease Detection</span></div><div id="diseaseResults"></div>';
             grid.appendChild(diseaseSection);
 
             resultsContainer.appendChild(grid);
@@ -612,40 +862,40 @@
             const speciesResults = document.getElementById('speciesResults');
             const diseaseResults = document.getElementById('diseaseResults');
 
-            // Display species
-            if (data.species_identification.success && 
-                data.species_identification.results.length > 0) {
+            if (data.species_identification.success && data.species_identification.results.length > 0) {
                 displaySpeciesResults(data.species_identification.results, speciesResults);
             } else {
                 speciesResults.innerHTML = '<div class="no-results">No species identified</div>';
             }
 
-            // Display disease
-            if (data.disease_detection.success && 
-                data.disease_detection.predictions.length > 0) {
-                window.lastDiseaseData = data.disease_detection; // Store for filter message
+            if (data.disease_detection.success && data.disease_detection.predictions.length > 0) {
+                window.lastDiseaseData = data.disease_detection;
                 displayDiseaseResults(data.disease_detection.predictions, diseaseResults);
             } else if (data.disease_detection.error) {
                 diseaseResults.innerHTML = `<div class="warning-message">${data.disease_detection.error}</div>`;
             } else {
                 diseaseResults.innerHTML = '<div class="no-results">No diseases detected</div>';
             }
+
+            if (withCarePlan && data.care_plan) {
+                if (data.care_plan.success) {
+                    displayCarePlan(data.care_plan, resultsContainer);
+                } else {
+                    const carePlanSection = document.createElement('div');
+                    carePlanSection.className = 'care-plan-section';
+                    carePlanSection.innerHTML = `<div class="warning-message">${data.care_plan.error || 'Care plan could not be generated'}</div>`;
+                    resultsContainer.appendChild(carePlanSection);
+                }
+            }
         }
 
-        // Display species only results
         function displaySpeciesOnlyResults(data) {
             resultsContainer.innerHTML = '';
             results.classList.remove('hidden');
 
             const section = document.createElement('div');
             section.className = 'results-single';
-            section.innerHTML = `
-                <div class="section-header">
-                    <span class="plant-icon">🔍</span>
-                    <span>Species Identification Results</span>
-                </div>
-                <div id="speciesResults"></div>
-            `;
+            section.innerHTML = '<div class="section-header"><span class="plant-icon">🔍</span><span>Species Identification Results</span></div><div id="speciesResults"></div>';
             resultsContainer.appendChild(section);
 
             const speciesResults = document.getElementById('speciesResults');
@@ -657,26 +907,19 @@
             }
         }
 
-        // Display disease only results
         function displayDiseaseOnlyResults(data) {
             resultsContainer.innerHTML = '';
             results.classList.remove('hidden');
 
             const section = document.createElement('div');
             section.className = 'results-single';
-            section.innerHTML = `
-                <div class="section-header">
-                    <span class="plant-icon">🩺</span>
-                    <span>Disease Detection Results</span>
-                </div>
-                <div id="diseaseResults"></div>
-            `;
+            section.innerHTML = '<div class="section-header"><span class="plant-icon">🩺</span><span>Disease Detection Results</span></div><div id="diseaseResults"></div>';
             resultsContainer.appendChild(section);
 
             const diseaseResults = document.getElementById('diseaseResults');
             
             if (data.success && data.predictions.length > 0) {
-                window.lastDiseaseData = data; // Store for filter message
+                window.lastDiseaseData = data;
                 displayDiseaseResults(data.predictions, diseaseResults);
             } else if (data.error) {
                 diseaseResults.innerHTML = `<div class="warning-message">${data.error}</div>`;
@@ -685,10 +928,10 @@
             }
         }
 
-        // Display species results
         function displaySpeciesResults(plantsData, container) {
             container.innerHTML = '';
             plantsData.forEach((plant, index) => {
+                if (index >= 3) return;
                 const card = document.createElement('div');
                 card.className = 'result-card';
                 
@@ -715,17 +958,12 @@
                     </div>
                 `;
                 container.appendChild(card);
-
-                if (index >= 2) return;
             });
         }
 
-        // Format multi-line filter messages
         function formatFilterMessage(message) {
             const lines = message.split('\n');
-            if (lines.length === 1) {
-                return message;
-            }
+            if (lines.length === 1) return message;
             
             let html = `<strong>${lines[0]}</strong>`;
             if (lines.length > 1) {
@@ -743,16 +981,13 @@
             return html;
         }
 
-        // Display disease results
         function displayDiseaseResults(predictions, container) {
             container.innerHTML = '';
             
-            // Show filter message if present (from backend)
             const filterMsg = window.lastDiseaseData?.filter_message;
             if (filterMsg) {
                 const msgDiv = document.createElement('div');
                 
-                // Determine message type by icon
                 if (filterMsg.includes('⚠️ MISMATCH') || filterMsg.includes('⚠️ LOW')) {
                     msgDiv.className = 'warning-message';
                 } else if (filterMsg.includes('✓')) {
@@ -770,6 +1005,7 @@
             }
             
             predictions.forEach((prediction, index) => {
+                if (index >= 3) return;
                 const card = document.createElement('div');
                 const isHealthy = prediction.is_healthy;
                 const confidenceClass = prediction.confidence > 70 ? 'good' : 'warning';
@@ -795,12 +1031,150 @@
                     </div>
                 `;
                 container.appendChild(card);
-
-                if (index >= 2) return;
             });
         }
 
-        // Show message
+        function displayCarePlan(carePlan, container) {
+            const carePlanSection = document.createElement('div');
+            carePlanSection.className = 'care-plan-section';
+
+            const summary = carePlan.plant_summary;
+            let summaryHTML = `
+                <div class="section-header">
+                    <span class="plant-icon">📋</span>
+                    <span>Personalized Care Plan</span>
+                </div>
+                <div class="care-summary">
+                    <h3>🌿 ${summary.name}</h3>
+                    <div class="care-level">Care Level: ${summary.care_level}</div>
+                    <ul class="key-points">
+            `;
+
+            summary.key_points.forEach(point => {
+                summaryHTML += `<li>${point}</li>`;
+            });
+
+            summaryHTML += `
+                    </ul>
+                </div>
+            `;
+
+            summaryHTML += '<div class="week-tabs">';
+            carePlan.weekly_schedule.forEach((week, index) => {
+                summaryHTML += `
+                    <div class="week-tab ${index === 0 ? 'active' : ''}" onclick="switchWeek(${index})">
+                        Week ${week.week}
+                    </div>
+                `;
+            });
+            summaryHTML += '</div>';
+
+            summaryHTML += '<div id="weekContents">';
+            carePlan.weekly_schedule.forEach((week, index) => {
+                summaryHTML += `
+                    <div class="week-content ${index === 0 ? 'active' : ''}" id="week-${index}">
+                        <div class="week-header">
+                            <div class="week-title">${week.title}</div>
+                            <div class="week-focus">Focus: ${week.focus}</div>
+                        </div>
+                        <div class="daily-tasks">
+                `;
+
+                week.tasks.forEach(task => {
+                    summaryHTML += `
+                        <div class="task-card priority-${task.priority}">
+                            <div class="task-header">
+                                <div class="task-day">${task.day}</div>
+                                <div class="task-priority priority-${task.priority}">${task.priority}</div>
+                            </div>
+                            <div class="task-title">${task.task}</div>
+                            <div class="task-description">${task.description}</div>
+                        </div>
+                    `;
+                });
+
+                summaryHTML += `
+                        </div>
+                        <div class="week-tips">
+                            <h4>💡 Tips for This Week</h4>
+                            <ul>
+                `;
+
+                week.tips.forEach(tip => {
+                    summaryHTML += `<li>${tip}</li>`;
+                });
+
+                summaryHTML += `
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            });
+            summaryHTML += '</div>';
+
+            if (carePlan.general_care_tips && carePlan.general_care_tips.length > 0) {
+                summaryHTML += `
+                    <div class="general-tips">
+                        <h4>🌱 General Care Tips</h4>
+                        <ul>
+                `;
+                carePlan.general_care_tips.forEach(tip => {
+                    summaryHTML += `<li>${tip}</li>`;
+                });
+                summaryHTML += `
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (carePlan.warning_signs && carePlan.warning_signs.length > 0) {
+                summaryHTML += `
+                    <div class="warning-signs">
+                        <h4>⚠️ Warning Signs to Watch For</h4>
+                        <ul>
+                `;
+                carePlan.warning_signs.forEach(sign => {
+                    summaryHTML += `<li>${sign}</li>`;
+                });
+                summaryHTML += `
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (carePlan.seasonal_notes) {
+                summaryHTML += `
+                    <div class="seasonal-note">
+                        <h4>🍂 Seasonal Considerations</h4>
+                        <p>${carePlan.seasonal_notes}</p>
+                    </div>
+                `;
+            }
+
+            carePlanSection.innerHTML = summaryHTML;
+            container.appendChild(carePlanSection);
+        }
+
+        function switchWeek(weekIndex) {
+            const tabs = document.querySelectorAll('.week-tab');
+            tabs.forEach((tab, index) => {
+                if (index === weekIndex) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            const contents = document.querySelectorAll('.week-content');
+            contents.forEach((content, index) => {
+                if (index === weekIndex) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        }
+
         function showMessage(text, type) {
             message.textContent = text;
             message.className = type;
