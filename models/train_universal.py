@@ -276,9 +276,9 @@ class UniversalDiseaseTrainer:
             lr=self.learning_rate
         )
         
-        # Learning rate scheduler
+        # Learning rate scheduler - FIXED: removed verbose parameter
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer, mode='max', factor=0.5, patience=3, verbose=True
+            optimizer, mode='max', factor=0.5, patience=3
         )
         
         # Training loop
@@ -324,7 +324,12 @@ class UniversalDiseaseTrainer:
                 print(f"Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}%")
                 
                 # Learning rate scheduling
+                current_lr = optimizer.param_groups[0]['lr']
                 scheduler.step(val_acc)
+                new_lr = optimizer.param_groups[0]['lr']
+                
+                if new_lr != current_lr:
+                    print(f"Learning rate reduced: {current_lr:.6f} -> {new_lr:.6f}")
                 
                 # Save best model
                 if val_acc > best_val_acc:

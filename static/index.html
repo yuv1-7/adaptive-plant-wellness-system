@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plant Species Identifier</title>
+    <title>Plant Analysis System</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 50%, #229954 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -25,13 +25,13 @@
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 900px;
+            max-width: 1200px;
             width: 100%;
             padding: 40px;
         }
 
         h1 {
-            color: #333;
+            color: #27ae60;
             text-align: center;
             margin-bottom: 10px;
             font-size: 2.5em;
@@ -44,32 +44,62 @@
             font-size: 1.1em;
         }
 
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .mode-btn {
+            background: #f0f0f0;
+            border: 2px solid #ddd;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .mode-btn:hover {
+            background: #e8e8e8;
+            border-color: #27ae60;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            border-color: #27ae60;
+            font-weight: bold;
+        }
+
         .upload-area {
-            border: 3px dashed #667eea;
+            border: 3px dashed #27ae60;
             border-radius: 15px;
             padding: 40px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: #f8f9ff;
+            background: #f8fff8;
             margin-bottom: 30px;
         }
 
         .upload-area:hover {
-            border-color: #764ba2;
-            background: #f0f1ff;
+            border-color: #229954;
+            background: #f0fff0;
         }
 
         .upload-area.drag-over {
-            border-color: #764ba2;
-            background: #e8e9ff;
+            border-color: #229954;
+            background: #e8ffe8;
             transform: scale(1.02);
         }
 
         .upload-icon {
             font-size: 4em;
             margin-bottom: 15px;
-            color: #667eea;
+            color: #27ae60;
         }
 
         .upload-text {
@@ -87,8 +117,15 @@
             display: none;
         }
 
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
         .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
             color: white;
             border: none;
             padding: 15px 40px;
@@ -97,18 +134,33 @@
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             display: inline-block;
-            margin-top: 10px;
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 10px 20px rgba(46, 204, 113, 0.4);
         }
 
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        .btn-warning:hover {
+            box-shadow: 0 10px 20px rgba(243, 156, 18, 0.4);
         }
 
         .preview-container {
@@ -130,7 +182,7 @@
 
         .spinner {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border-top: 4px solid #27ae60;
             border-radius: 50%;
             width: 50px;
             height: 50px;
@@ -147,17 +199,66 @@
             margin-top: 30px;
         }
 
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .results-single {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            .mode-selector {
+                flex-direction: column;
+            }
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+
+        .section-header {
+            font-size: 1.5em;
+            color: #27ae60;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #27ae60;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .result-card {
-            background: #f8f9ff;
+            background: #f8fff8;
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 15px;
-            border-left: 5px solid #667eea;
+            border-left: 5px solid #27ae60;
             transition: transform 0.2s;
         }
 
         .result-card:hover {
             transform: translateX(5px);
+        }
+
+        .disease-card {
+            background: #fff8f0;
+            border-left: 5px solid #f39c12;
+        }
+
+        .disease-card.healthy {
+            background: #f0fff8;
+            border-left: 5px solid #2ecc71;
+        }
+
+        .disease-card.warning {
+            background: #fff0f0;
+            border-left: 5px solid #e74c3c;
         }
 
         .result-header {
@@ -174,12 +275,26 @@
             font-weight: bold;
         }
 
+        .disease-name {
+            font-size: 1.3em;
+            color: #333;
+            font-weight: bold;
+        }
+
         .confidence {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
             color: white;
             padding: 8px 15px;
             border-radius: 20px;
             font-weight: bold;
+        }
+
+        .confidence.warning {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .confidence.good {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
         }
 
         .result-info {
@@ -193,12 +308,31 @@
 
         .info-label {
             font-weight: bold;
-            color: #667eea;
+            color: #27ae60;
         }
 
         .common-names {
             color: #666;
             font-style: italic;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .status-badge.healthy {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.diseased {
+            background: #f8d7da;
+            color: #721c24;
         }
 
         .error {
@@ -219,15 +353,48 @@
             margin-top: 20px;
         }
 
+        .warning-message {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            border-radius: 10px;
+            color: #856404;
+            margin-top: 20px;
+        }
+
         .hidden {
             display: none;
+        }
+
+        .plant-icon {
+            font-size: 1.2em;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🌿 Plant Species Identifier</h1>
-        <p class="subtitle">Upload an image to identify plant species using AI</p>
+        <h1>🌿 Plant Analysis System</h1>
+        <p class="subtitle">Advanced plant species identification and disease detection</p>
+
+        <!-- Mode Selector -->
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="full">
+                🔬 Full Analysis
+            </button>
+            <button class="mode-btn" data-mode="species">
+                🔍 Species Only
+            </button>
+            <button class="mode-btn" data-mode="disease">
+                🩺 Disease Only
+            </button>
+        </div>
 
         <div class="upload-area" id="uploadArea">
             <div class="upload-icon">📷</div>
@@ -239,15 +406,20 @@
         <div id="previewContainer" class="preview-container hidden">
             <img id="previewImage" class="preview-image" alt="Preview">
             <br>
-            <button class="btn" id="identifyBtn">Identify Plant</button>
+            <div class="btn-group" id="actionButtons">
+                <!-- Buttons will be dynamically shown based on mode -->
+            </div>
         </div>
 
         <div id="loading" class="loading hidden">
             <div class="spinner"></div>
-            <p>Analyzing image and identifying plant species...</p>
+            <p id="loadingText">Analyzing image...</p>
         </div>
 
-        <div id="results" class="results hidden"></div>
+        <div id="results" class="results hidden">
+            <div id="resultsContainer"></div>
+        </div>
+
         <div id="message" class="hidden"></div>
     </div>
 
@@ -256,12 +428,52 @@
         const fileInput = document.getElementById('fileInput');
         const previewContainer = document.getElementById('previewContainer');
         const previewImage = document.getElementById('previewImage');
-        const identifyBtn = document.getElementById('identifyBtn');
+        const actionButtons = document.getElementById('actionButtons');
         const loading = document.getElementById('loading');
+        const loadingText = document.getElementById('loadingText');
         const results = document.getElementById('results');
+        const resultsContainer = document.getElementById('resultsContainer');
         const message = document.getElementById('message');
+        const modeButtons = document.querySelectorAll('.mode-btn');
 
         let selectedFile = null;
+        let currentMode = 'full';
+
+        // Mode selection
+        modeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modeButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentMode = btn.dataset.mode;
+                updateActionButtons();
+            });
+        });
+
+        function updateActionButtons() {
+            if (!selectedFile) return;
+
+            actionButtons.innerHTML = '';
+
+            if (currentMode === 'full') {
+                actionButtons.innerHTML = `
+                    <button class="btn" onclick="analyzeImage('full')">
+                        🔬 Full Analysis
+                    </button>
+                `;
+            } else if (currentMode === 'species') {
+                actionButtons.innerHTML = `
+                    <button class="btn btn-secondary" onclick="analyzeImage('species')">
+                        🔍 Identify Species
+                    </button>
+                `;
+            } else if (currentMode === 'disease') {
+                actionButtons.innerHTML = `
+                    <button class="btn btn-warning" onclick="analyzeImage('disease')">
+                        🩺 Detect Disease
+                    </button>
+                `;
+            }
+        }
 
         // Click to upload
         uploadArea.addEventListener('click', () => {
@@ -303,48 +515,177 @@
                 previewContainer.classList.remove('hidden');
                 results.classList.add('hidden');
                 message.classList.add('hidden');
+                updateActionButtons();
             };
             reader.readAsDataURL(file);
         }
 
-        // Identify button click
-        identifyBtn.addEventListener('click', async () => {
+        // Analyze image based on mode
+        async function analyzeImage(mode) {
             if (!selectedFile) return;
 
             loading.classList.remove('hidden');
             results.classList.add('hidden');
             message.classList.add('hidden');
-            identifyBtn.disabled = true;
+
+            // Disable all buttons
+            document.querySelectorAll('.btn').forEach(btn => btn.disabled = true);
+
+            // Set loading text based on mode
+            if (mode === 'full') {
+                loadingText.textContent = 'Running full analysis (species + disease detection)...';
+            } else if (mode === 'species') {
+                loadingText.textContent = 'Identifying plant species...';
+            } else if (mode === 'disease') {
+                loadingText.textContent = 'Detecting plant diseases...';
+            }
 
             const formData = new FormData();
             formData.append('file', selectedFile);
 
             try {
-                const response = await fetch('/api/identify', {
+                let endpoint;
+                if (mode === 'full') {
+                    endpoint = '/api/analyze';
+                } else if (mode === 'species') {
+                    endpoint = '/api/identify';
+                } else if (mode === 'disease') {
+                    endpoint = '/api/detect-disease';
+                }
+
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     body: formData
                 });
 
                 const data = await response.json();
 
-                if (data.success && data.results.length > 0) {
-                    displayResults(data.results);
+                if (mode === 'full' && data.success) {
+                    displayFullResults(data);
+                } else if (mode === 'species' && data.success) {
+                    displaySpeciesOnlyResults(data);
+                } else if (mode === 'disease' && data.success) {
+                    displayDiseaseOnlyResults(data);
                 } else {
-                    showMessage(data.message || 'No plants identified in the image', 'error');
+                    showMessage(data.message || 'Analysis failed. Please try again.', 'error');
                 }
             } catch (error) {
                 showMessage('Error: ' + error.message, 'error');
             } finally {
                 loading.classList.add('hidden');
-                identifyBtn.disabled = false;
+                document.querySelectorAll('.btn').forEach(btn => btn.disabled = false);
             }
-        });
+        }
 
-        // Display results
-        function displayResults(plantsData) {
-            results.innerHTML = '';
+        // Display full analysis results
+        function displayFullResults(data) {
+            resultsContainer.innerHTML = '';
             results.classList.remove('hidden');
 
+            const grid = document.createElement('div');
+            grid.className = 'results-grid';
+
+            // Species Section
+            const speciesSection = document.createElement('div');
+            speciesSection.innerHTML = `
+                <div class="section-header">
+                    <span class="plant-icon">🔍</span>
+                    <span>Species Identification</span>
+                </div>
+                <div id="speciesResults"></div>
+            `;
+            grid.appendChild(speciesSection);
+
+            // Disease Section
+            const diseaseSection = document.createElement('div');
+            diseaseSection.innerHTML = `
+                <div class="section-header">
+                    <span class="plant-icon">🔬</span>
+                    <span>Disease Detection</span>
+                </div>
+                <div id="diseaseResults"></div>
+            `;
+            grid.appendChild(diseaseSection);
+
+            resultsContainer.appendChild(grid);
+
+            const speciesResults = document.getElementById('speciesResults');
+            const diseaseResults = document.getElementById('diseaseResults');
+
+            // Display species
+            if (data.species_identification.success && 
+                data.species_identification.results.length > 0) {
+                displaySpeciesResults(data.species_identification.results, speciesResults);
+            } else {
+                speciesResults.innerHTML = '<div class="no-results">No species identified</div>';
+            }
+
+            // Display disease
+            if (data.disease_detection.success && 
+                data.disease_detection.predictions.length > 0) {
+                displayDiseaseResults(data.disease_detection.predictions, diseaseResults);
+            } else if (data.disease_detection.error) {
+                diseaseResults.innerHTML = `<div class="warning-message">${data.disease_detection.error}</div>`;
+            } else {
+                diseaseResults.innerHTML = '<div class="no-results">No diseases detected</div>';
+            }
+        }
+
+        // Display species only results
+        function displaySpeciesOnlyResults(data) {
+            resultsContainer.innerHTML = '';
+            results.classList.remove('hidden');
+
+            const section = document.createElement('div');
+            section.className = 'results-single';
+            section.innerHTML = `
+                <div class="section-header">
+                    <span class="plant-icon">🔍</span>
+                    <span>Species Identification Results</span>
+                </div>
+                <div id="speciesResults"></div>
+            `;
+            resultsContainer.appendChild(section);
+
+            const speciesResults = document.getElementById('speciesResults');
+            
+            if (data.success && data.results.length > 0) {
+                displaySpeciesResults(data.results, speciesResults);
+            } else {
+                speciesResults.innerHTML = '<div class="no-results">No species identified</div>';
+            }
+        }
+
+        // Display disease only results
+        function displayDiseaseOnlyResults(data) {
+            resultsContainer.innerHTML = '';
+            results.classList.remove('hidden');
+
+            const section = document.createElement('div');
+            section.className = 'results-single';
+            section.innerHTML = `
+                <div class="section-header">
+                    <span class="plant-icon">🩺</span>
+                    <span>Disease Detection Results</span>
+                </div>
+                <div id="diseaseResults"></div>
+            `;
+            resultsContainer.appendChild(section);
+
+            const diseaseResults = document.getElementById('diseaseResults');
+            
+            if (data.success && data.predictions.length > 0) {
+                displayDiseaseResults(data.predictions, diseaseResults);
+            } else if (data.error) {
+                diseaseResults.innerHTML = `<div class="warning-message">${data.error}</div>`;
+            } else {
+                diseaseResults.innerHTML = '<div class="no-results">No diseases detected</div>';
+            }
+        }
+
+        // Display species results
+        function displaySpeciesResults(plantsData, container) {
+            container.innerHTML = '';
             plantsData.forEach((plant, index) => {
                 const card = document.createElement('div');
                 card.className = 'result-card';
@@ -356,7 +697,7 @@
                 card.innerHTML = `
                     <div class="result-header">
                         <div class="scientific-name">${plant.scientific_name}</div>
-                        <div class="confidence">${plant.score}% match</div>
+                        <div class="confidence">${plant.score}%</div>
                     </div>
                     <div class="result-info">
                         <div class="info-item">
@@ -371,7 +712,43 @@
                         </div>
                     </div>
                 `;
-                results.appendChild(card);
+                container.appendChild(card);
+
+                if (index >= 2) return;
+            });
+        }
+
+        // Display disease results
+        function displayDiseaseResults(predictions, container) {
+            container.innerHTML = '';
+            predictions.forEach((prediction, index) => {
+                const card = document.createElement('div');
+                const isHealthy = prediction.is_healthy;
+                const confidenceClass = prediction.confidence > 70 ? 'good' : 'warning';
+                
+                card.className = `result-card disease-card ${isHealthy ? 'healthy' : 'warning'}`;
+
+                card.innerHTML = `
+                    <div class="result-header">
+                        <div>
+                            <div class="disease-name">
+                                ${isHealthy ? '✅' : '⚠️'} ${prediction.disease}
+                            </div>
+                            <div style="color: #666; font-size: 0.9em; margin-top: 5px;">
+                                Plant: ${prediction.plant}
+                            </div>
+                        </div>
+                        <div class="confidence ${confidenceClass}">
+                            ${prediction.confidence.toFixed(1)}%
+                        </div>
+                    </div>
+                    <div class="status-badge ${isHealthy ? 'healthy' : 'diseased'}">
+                        ${isHealthy ? 'Healthy Plant' : 'Disease Detected'}
+                    </div>
+                `;
+                container.appendChild(card);
+
+                if (index >= 2) return;
             });
         }
 
