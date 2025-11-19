@@ -15,9 +15,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #2ecc71 0%, #27ae60 50%, #229954 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
         }
 
@@ -28,6 +25,7 @@
             max-width: 1400px;
             width: 100%;
             padding: 40px;
+            margin: 0 auto;
         }
 
         h1 {
@@ -103,26 +101,8 @@
             color: #27ae60;
         }
 
-        .upload-text {
-            color: #555;
-            font-size: 1.2em;
-            margin-bottom: 10px;
-        }
-
-        .upload-hint {
-            color: #999;
-            font-size: 0.9em;
-        }
-
         #fileInput {
             display: none;
-        }
-
-        .btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
         }
 
         .btn {
@@ -134,7 +114,6 @@
             font-size: 1.1em;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
-            display: inline-block;
         }
 
         .btn:hover {
@@ -145,35 +124,6 @@
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-        }
-
-        .btn-secondary:hover {
-            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.4);
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-        }
-
-        .btn-warning:hover {
-            box-shadow: 0 10px 20px rgba(243, 156, 18, 0.4);
-        }
-
-        .preview-container {
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        .preview-image {
-            max-width: 100%;
-            max-height: 400px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .loading {
@@ -196,10 +146,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        .results {
-            margin-top: 30px;
-        }
-
         .results-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -207,22 +153,9 @@
             margin-top: 20px;
         }
 
-        .results-single {
-            display: block;
-        }
-
         @media (max-width: 968px) {
             .results-grid {
                 grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .mode-selector {
-                flex-direction: column;
-            }
-            .btn-group {
-                flex-direction: column;
             }
         }
 
@@ -265,26 +198,6 @@
             border-left: 5px solid #e74c3c;
         }
 
-        .result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .scientific-name {
-            font-size: 1.4em;
-            color: #333;
-            font-style: italic;
-            font-weight: bold;
-        }
-
-        .disease-name {
-            font-size: 1.3em;
-            color: #333;
-            font-weight: bold;
-        }
-
         .confidence {
             background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
             color: white;
@@ -293,58 +206,16 @@
             font-weight: bold;
         }
 
-        .confidence.warning {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-        }
-
-        .confidence.good {
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-        }
-
-        .result-info {
-            margin-top: 10px;
-        }
-
-        .info-item {
-            margin: 8px 0;
-            color: #555;
-        }
-
-        .info-label {
-            font-weight: bold;
-            color: #27ae60;
-        }
-
-        .common-names {
-            color: #666;
-            font-style: italic;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        .status-badge.healthy {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-badge.diseased {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
+        /* Care Plan Styles */
         .care-plan-section {
             margin-top: 30px;
             grid-column: 1 / -1;
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
         }
 
-        .care-summary {
+        .care-plan-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 25px;
@@ -352,319 +223,173 @@
             margin-bottom: 20px;
         }
 
-        .care-summary h3 {
-            font-size: 1.8em;
-            margin-bottom: 15px;
-        }
-
-        .care-level {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 8px 20px;
-            border-radius: 20px;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-
-        .key-points {
-            list-style: none;
-            margin-top: 15px;
-        }
-
-        .key-points li {
-            padding: 8px 0;
-            padding-left: 30px;
-            position: relative;
-        }
-
-        .key-points li:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-
-        .week-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .week-tab {
-            background: #f0f0f0;
-            border: 2px solid #ddd;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-        }
-
-        .week-tab:hover {
-            background: #e8e8e8;
-            border-color: #667eea;
-        }
-
-        .week-tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: #667eea;
-        }
-
-        .week-content {
-            display: none;
-        }
-
-        .week-content.active {
-            display: block;
-        }
-
-        .week-header {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .week-title {
-            font-size: 1.5em;
-            color: #333;
+        .care-plan-header h2 {
+            font-size: 2em;
             margin-bottom: 10px;
         }
 
-        .week-focus {
+        .care-plan-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            font-size: 0.95em;
+        }
+
+        .care-plan-meta span {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+
+        .care-plan-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .care-plan-content h1,
+        .care-plan-content h2,
+        .care-plan-content h3,
+        .care-plan-content h4 {
+            color: #27ae60;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .care-plan-content h1 {
+            font-size: 2em;
+            border-bottom: 3px solid #27ae60;
+            padding-bottom: 10px;
+        }
+
+        .care-plan-content h2 {
+            font-size: 1.6em;
+            border-bottom: 2px solid #27ae60;
+            padding-bottom: 8px;
+        }
+
+        .care-plan-content h3 {
+            font-size: 1.3em;
+            color: #667eea;
+        }
+
+        .care-plan-content h4 {
+            font-size: 1.1em;
+        }
+
+        .care-plan-content ul,
+        .care-plan-content ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        .care-plan-content li {
+            margin-bottom: 8px;
+        }
+
+        .care-plan-content p {
+            margin-bottom: 15px;
+        }
+
+        .care-plan-content strong {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .care-plan-content em {
+            color: #666;
+        }
+
+        .care-plan-content blockquote {
+            border-left: 4px solid #667eea;
+            padding-left: 20px;
+            margin: 20px 0;
             color: #666;
             font-style: italic;
         }
 
-        .daily-tasks {
-            display: grid;
-            gap: 15px;
-        }
-
-        .task-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            border-left: 4px solid #667eea;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .task-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-        }
-
-        .task-card.priority-high {
-            border-left-color: #e74c3c;
-        }
-
-        .task-card.priority-medium {
-            border-left-color: #f39c12;
-        }
-
-        .task-card.priority-low {
-            border-left-color: #3498db;
-        }
-
-        .task-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .task-day {
-            font-weight: bold;
-            color: #667eea;
-            font-size: 1.1em;
-        }
-
-        .task-priority {
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.85em;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .task-priority.priority-high {
-            background: #fee;
-            color: #e74c3c;
-        }
-
-        .task-priority.priority-medium {
-            background: #fef3e0;
-            color: #f39c12;
-        }
-
-        .task-priority.priority-low {
-            background: #e3f2fd;
-            color: #3498db;
-        }
-
-        .task-title {
-            font-size: 1.2em;
-            color: #333;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .task-description {
-            color: #666;
-            line-height: 1.6;
-        }
-
-        .week-tips {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        .week-tips h4 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
-
-        .week-tips ul {
-            list-style: none;
-            color: #856404;
-        }
-
-        .week-tips li {
-            padding: 5px 0;
-            padding-left: 20px;
-            position: relative;
-        }
-
-        .week-tips li:before {
-            content: "💡";
-            position: absolute;
-            left: 0;
-        }
-
-        .general-tips {
-            background: #d1ecf1;
-            border-left: 4px solid #17a2b8;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-
-        .general-tips h4 {
-            color: #0c5460;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .general-tips ul {
-            list-style: none;
-        }
-
-        .general-tips li {
-            padding: 8px 0;
-            color: #0c5460;
-            padding-left: 25px;
-            position: relative;
-        }
-
-        .general-tips li:before {
-            content: "🌱";
-            position: absolute;
-            left: 0;
-        }
-
-        .warning-signs {
-            background: #f8d7da;
-            border-left: 4px solid #dc3545;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-
-        .warning-signs h4 {
-            color: #721c24;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .warning-signs ul {
-            list-style: none;
-        }
-
-        .warning-signs li {
-            padding: 8px 0;
-            color: #721c24;
-            padding-left: 25px;
-            position: relative;
-        }
-
-        .warning-signs li:before {
-            content: "⚠️";
-            position: absolute;
-            left: 0;
-        }
-
-        .seasonal-note {
-            background: #e8f5e9;
-            border-left: 4px solid #4caf50;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-            color: #2e7d32;
-        }
-
-        .seasonal-note h4 {
-            margin-bottom: 8px;
-        }
-
+        .warning-message,
+        .success,
         .error {
-            background: #ffe6e6;
-            border-left: 5px solid #ff4444;
-            padding: 15px;
+            padding: 15px 20px;
             border-radius: 10px;
-            color: #cc0000;
-            margin-top: 20px;
-        }
-
-        .success {
-            background: #e6ffe6;
-            border-left: 5px solid #44ff44;
-            padding: 15px;
-            border-radius: 10px;
-            color: #006600;
-            margin-top: 20px;
+            margin: 15px 0;
         }
 
         .warning-message {
             background: #fff3cd;
             border-left: 5px solid #ffc107;
-            padding: 15px;
-            border-radius: 10px;
             color: #856404;
-            margin-top: 20px;
+        }
+
+        .success {
+            background: #e6ffe6;
+            border-left: 5px solid #44ff44;
+            color: #006600;
+        }
+
+        .error {
+            background: #ffe6e6;
+            border-left: 5px solid #ff4444;
+            color: #cc0000;
         }
 
         .hidden {
             display: none;
         }
 
-        .plant-icon {
-            font-size: 1.2em;
+        .preview-container {
+            margin: 20px 0;
+            text-align: center;
         }
 
-        .no-results {
-            text-align: center;
-            color: #999;
-            padding: 20px;
-            font-style: italic;
+        .preview-image {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Markdown rendering enhancements */
+        .care-plan-content code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .care-plan-content pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .care-plan-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .care-plan-content table th,
+        .care-plan-content table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .care-plan-content table th {
+            background: #27ae60;
+            color: white;
         }
     </style>
+    <!-- Marked.js for Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -672,18 +397,10 @@
         <p class="subtitle">Advanced plant identification, disease detection & personalized care planning</p>
 
         <div class="mode-selector">
-            <button class="mode-btn active" data-mode="full">
-                🔬 Full Analysis
-            </button>
-            <button class="mode-btn" data-mode="full-care">
-                🔬 Full + Care Plan
-            </button>
-            <button class="mode-btn" data-mode="species">
-                🔍 Species Only
-            </button>
-            <button class="mode-btn" data-mode="disease">
-                🩺 Disease Only
-            </button>
+            <button class="mode-btn active" data-mode="full">🔬 Full Analysis</button>
+            <button class="mode-btn" data-mode="full-care">🔬 Full + Care Plan</button>
+            <button class="mode-btn" data-mode="species">🔍 Species Only</button>
+            <button class="mode-btn" data-mode="disease">🩺 Disease Only</button>
         </div>
 
         <div class="upload-area" id="uploadArea">
@@ -696,7 +413,7 @@
         <div id="previewContainer" class="preview-container hidden">
             <img id="previewImage" class="preview-image" alt="Preview">
             <br>
-            <div class="btn-group" id="actionButtons"></div>
+            <div id="actionButtons" style="margin-top: 20px;"></div>
         </div>
 
         <div id="loading" class="loading hidden">
@@ -745,9 +462,9 @@
             } else if (currentMode === 'full-care') {
                 actionButtons.innerHTML = '<button class="btn" onclick="analyzeImage(\'full\', true)">🔬 Analyze & Generate Care Plan</button>';
             } else if (currentMode === 'species') {
-                actionButtons.innerHTML = '<button class="btn btn-secondary" onclick="analyzeImage(\'species\', false)">🔍 Identify Species</button>';
+                actionButtons.innerHTML = '<button class="btn" onclick="analyzeImage(\'species\', false)">🔍 Identify Species</button>';
             } else if (currentMode === 'disease') {
-                actionButtons.innerHTML = '<button class="btn btn-warning" onclick="analyzeImage(\'disease\', false)">🩺 Detect Disease</button>';
+                actionButtons.innerHTML = '<button class="btn" onclick="analyzeImage(\'disease\', false)">🩺 Detect Disease</button>';
             }
         }
 
@@ -796,13 +513,9 @@
             document.querySelectorAll('.btn').forEach(btn => btn.disabled = true);
 
             if (withCarePlan) {
-                loadingText.textContent = 'Running full analysis and generating personalized care plan...';
-            } else if (mode === 'full') {
-                loadingText.textContent = 'Running full analysis...';
-            } else if (mode === 'species') {
-                loadingText.textContent = 'Identifying plant species...';
-            } else if (mode === 'disease') {
-                loadingText.textContent = 'Detecting plant diseases...';
+                loadingText.textContent = 'Analyzing plant and generating personalized care plan... This may take 30-60 seconds.';
+            } else {
+                loadingText.textContent = 'Analyzing image...';
             }
 
             const formData = new FormData();
@@ -850,11 +563,11 @@
             grid.className = 'results-grid';
 
             const speciesSection = document.createElement('div');
-            speciesSection.innerHTML = '<div class="section-header"><span class="plant-icon">🔍</span><span>Species Identification</span></div><div id="speciesResults"></div>';
+            speciesSection.innerHTML = '<div class="section-header"><span>🔍</span><span>Species Identification</span></div><div id="speciesResults"></div>';
             grid.appendChild(speciesSection);
 
             const diseaseSection = document.createElement('div');
-            diseaseSection.innerHTML = '<div class="section-header"><span class="plant-icon">🔬</span><span>Disease Detection</span></div><div id="diseaseResults"></div>';
+            diseaseSection.innerHTML = '<div class="section-header"><span>🔬</span><span>Disease Detection</span></div><div id="diseaseResults"></div>';
             grid.appendChild(diseaseSection);
 
             resultsContainer.appendChild(grid);
@@ -865,16 +578,13 @@
             if (data.species_identification.success && data.species_identification.results.length > 0) {
                 displaySpeciesResults(data.species_identification.results, speciesResults);
             } else {
-                speciesResults.innerHTML = '<div class="no-results">No species identified</div>';
+                speciesResults.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">No species identified</div>';
             }
 
             if (data.disease_detection.success && data.disease_detection.predictions.length > 0) {
-                window.lastDiseaseData = data.disease_detection;
-                displayDiseaseResults(data.disease_detection.predictions, diseaseResults);
-            } else if (data.disease_detection.error) {
-                diseaseResults.innerHTML = `<div class="warning-message">${data.disease_detection.error}</div>`;
+                displayDiseaseResults(data.disease_detection.predictions, diseaseResults, data.disease_detection.filter_message);
             } else {
-                diseaseResults.innerHTML = '<div class="no-results">No diseases detected</div>';
+                diseaseResults.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">No diseases detected</div>';
             }
 
             if (withCarePlan && data.care_plan) {
@@ -886,45 +596,6 @@
                     carePlanSection.innerHTML = `<div class="warning-message">${data.care_plan.error || 'Care plan could not be generated'}</div>`;
                     resultsContainer.appendChild(carePlanSection);
                 }
-            }
-        }
-
-        function displaySpeciesOnlyResults(data) {
-            resultsContainer.innerHTML = '';
-            results.classList.remove('hidden');
-
-            const section = document.createElement('div');
-            section.className = 'results-single';
-            section.innerHTML = '<div class="section-header"><span class="plant-icon">🔍</span><span>Species Identification Results</span></div><div id="speciesResults"></div>';
-            resultsContainer.appendChild(section);
-
-            const speciesResults = document.getElementById('speciesResults');
-            
-            if (data.success && data.results.length > 0) {
-                displaySpeciesResults(data.results, speciesResults);
-            } else {
-                speciesResults.innerHTML = '<div class="no-results">No species identified</div>';
-            }
-        }
-
-        function displayDiseaseOnlyResults(data) {
-            resultsContainer.innerHTML = '';
-            results.classList.remove('hidden');
-
-            const section = document.createElement('div');
-            section.className = 'results-single';
-            section.innerHTML = '<div class="section-header"><span class="plant-icon">🩺</span><span>Disease Detection Results</span></div><div id="diseaseResults"></div>';
-            resultsContainer.appendChild(section);
-
-            const diseaseResults = document.getElementById('diseaseResults');
-            
-            if (data.success && data.predictions.length > 0) {
-                window.lastDiseaseData = data;
-                displayDiseaseResults(data.predictions, diseaseResults);
-            } else if (data.error) {
-                diseaseResults.innerHTML = `<div class="warning-message">${data.error}</div>`;
-            } else {
-                diseaseResults.innerHTML = '<div class="no-results">No diseases detected</div>';
             }
         }
 
@@ -940,20 +611,20 @@
                     : 'No common names available';
 
                 card.innerHTML = `
-                    <div class="result-header">
-                        <div class="scientific-name">${plant.scientific_name}</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div style="font-size: 1.4em; color: #333; font-style: italic; font-weight: bold;">${plant.scientific_name}</div>
                         <div class="confidence">${plant.score}%</div>
                     </div>
-                    <div class="result-info">
-                        <div class="info-item">
-                            <span class="info-label">Common Names:</span>
-                            <span class="common-names">${commonNamesText}</span>
+                    <div style="margin-top: 10px;">
+                        <div style="margin: 8px 0; color: #555;">
+                            <span style="font-weight: bold; color: #27ae60;">Common Names:</span>
+                            <span style="color: #666; font-style: italic;">${commonNamesText}</span>
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">Family:</span> ${plant.family}
+                        <div style="margin: 8px 0; color: #555;">
+                            <span style="font-weight: bold; color: #27ae60;">Family:</span> ${plant.family}
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">Genus:</span> ${plant.genus}
+                        <div style="margin: 8px 0; color: #555;">
+                            <span style="font-weight: bold; color: #27ae60;">Genus:</span> ${plant.genus}
                         </div>
                     </div>
                 `;
@@ -961,46 +632,18 @@
             });
         }
 
-        function formatFilterMessage(message) {
-            const lines = message.split('\n');
-            if (lines.length === 1) return message;
-            
-            let html = `<strong>${lines[0]}</strong>`;
-            if (lines.length > 1) {
-                html += "<ul style='margin: 10px 0 0 20px; font-size: 0.9em;'>";
-                for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (line && line.startsWith('•')) {
-                        html += `<li>${line.substring(1).trim()}</li>`;
-                    } else if (line) {
-                        html += `<li>${line}</li>`;
-                    }
-                }
-                html += "</ul>";
-            }
-            return html;
-        }
-
-        function displayDiseaseResults(predictions, container) {
+        function displayDiseaseResults(predictions, container, filterMessage) {
             container.innerHTML = '';
             
-            const filterMsg = window.lastDiseaseData?.filter_message;
-            if (filterMsg) {
+            if (filterMessage) {
                 const msgDiv = document.createElement('div');
-                
-                if (filterMsg.includes('⚠️ MISMATCH') || filterMsg.includes('⚠️ LOW')) {
+                if (filterMessage.includes('⚠️')) {
                     msgDiv.className = 'warning-message';
-                } else if (filterMsg.includes('✓')) {
+                } else if (filterMessage.includes('✓')) {
                     msgDiv.className = 'success';
-                } else {
-                    msgDiv.className = 'warning-message';
-                    msgDiv.style.background = '#e3f2fd';
-                    msgDiv.style.borderLeftColor = '#2196f3';
-                    msgDiv.style.color = '#1565c0';
                 }
-                
                 msgDiv.style.marginBottom = '15px';
-                msgDiv.innerHTML = formatFilterMessage(filterMsg);
+                msgDiv.innerHTML = filterMessage.replace(/\n/g, '<br>');
                 container.appendChild(msgDiv);
             }
             
@@ -1008,25 +651,22 @@
                 if (index >= 3) return;
                 const card = document.createElement('div');
                 const isHealthy = prediction.is_healthy;
-                const confidenceClass = prediction.confidence > 70 ? 'good' : 'warning';
                 
                 card.className = `result-card disease-card ${isHealthy ? 'healthy' : 'warning'}`;
 
                 card.innerHTML = `
-                    <div class="result-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <div>
-                            <div class="disease-name">
+                            <div style="font-size: 1.3em; color: #333; font-weight: bold;">
                                 ${isHealthy ? '✅' : '⚠️'} ${prediction.disease}
                             </div>
                             <div style="color: #666; font-size: 0.9em; margin-top: 5px;">
                                 Plant: ${prediction.plant}
                             </div>
                         </div>
-                        <div class="confidence ${confidenceClass}">
-                            ${prediction.confidence.toFixed(1)}%
-                        </div>
+                        <div class="confidence">${prediction.confidence.toFixed(1)}%</div>
                     </div>
-                    <div class="status-badge ${isHealthy ? 'healthy' : 'diseased'}">
+                    <div style="display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold; margin-top: 10px; background: ${isHealthy ? '#d4edda' : '#f8d7da'}; color: ${isHealthy ? '#155724' : '#721c24'};">
                         ${isHealthy ? 'Healthy Plant' : 'Disease Detected'}
                     </div>
                 `;
@@ -1038,141 +678,58 @@
             const carePlanSection = document.createElement('div');
             carePlanSection.className = 'care-plan-section';
 
-            const summary = carePlan.plant_summary;
-            let summaryHTML = `
-                <div class="section-header">
-                    <span class="plant-icon">📋</span>
-                    <span>Personalized Care Plan</span>
+            const html = `
+                <div class="care-plan-header">
+                    <h2>📋 ${carePlan.weeks}-Week Personalized Care Plan</h2>
+                    <div class="care-plan-meta">
+                        <span>🌱 ${carePlan.plant_name}</span>
+                        <span>🔬 ${carePlan.scientific_name}</span>
+                        <span>📊 Care Level: ${carePlan.care_level}</span>
+                    </div>
                 </div>
-                <div class="care-summary">
-                    <h3>🌿 ${summary.name}</h3>
-                    <div class="care-level">Care Level: ${summary.care_level}</div>
-                    <ul class="key-points">
+                <div class="care-plan-content" id="carePlanText"></div>
             `;
 
-            summary.key_points.forEach(point => {
-                summaryHTML += `<li>${point}</li>`;
-            });
-
-            summaryHTML += `
-                    </ul>
-                </div>
-            `;
-
-            summaryHTML += '<div class="week-tabs">';
-            carePlan.weekly_schedule.forEach((week, index) => {
-                summaryHTML += `
-                    <div class="week-tab ${index === 0 ? 'active' : ''}" onclick="switchWeek(${index})">
-                        Week ${week.week}
-                    </div>
-                `;
-            });
-            summaryHTML += '</div>';
-
-            summaryHTML += '<div id="weekContents">';
-            carePlan.weekly_schedule.forEach((week, index) => {
-                summaryHTML += `
-                    <div class="week-content ${index === 0 ? 'active' : ''}" id="week-${index}">
-                        <div class="week-header">
-                            <div class="week-title">${week.title}</div>
-                            <div class="week-focus">Focus: ${week.focus}</div>
-                        </div>
-                        <div class="daily-tasks">
-                `;
-
-                week.tasks.forEach(task => {
-                    summaryHTML += `
-                        <div class="task-card priority-${task.priority}">
-                            <div class="task-header">
-                                <div class="task-day">${task.day}</div>
-                                <div class="task-priority priority-${task.priority}">${task.priority}</div>
-                            </div>
-                            <div class="task-title">${task.task}</div>
-                            <div class="task-description">${task.description}</div>
-                        </div>
-                    `;
-                });
-
-                summaryHTML += `
-                        </div>
-                        <div class="week-tips">
-                            <h4>💡 Tips for This Week</h4>
-                            <ul>
-                `;
-
-                week.tips.forEach(tip => {
-                    summaryHTML += `<li>${tip}</li>`;
-                });
-
-                summaryHTML += `
-                            </ul>
-                        </div>
-                    </div>
-                `;
-            });
-            summaryHTML += '</div>';
-
-            if (carePlan.general_care_tips && carePlan.general_care_tips.length > 0) {
-                summaryHTML += `
-                    <div class="general-tips">
-                        <h4>🌱 General Care Tips</h4>
-                        <ul>
-                `;
-                carePlan.general_care_tips.forEach(tip => {
-                    summaryHTML += `<li>${tip}</li>`;
-                });
-                summaryHTML += `
-                        </ul>
-                    </div>
-                `;
-            }
-
-            if (carePlan.warning_signs && carePlan.warning_signs.length > 0) {
-                summaryHTML += `
-                    <div class="warning-signs">
-                        <h4>⚠️ Warning Signs to Watch For</h4>
-                        <ul>
-                `;
-                carePlan.warning_signs.forEach(sign => {
-                    summaryHTML += `<li>${sign}</li>`;
-                });
-                summaryHTML += `
-                        </ul>
-                    </div>
-                `;
-            }
-
-            if (carePlan.seasonal_notes) {
-                summaryHTML += `
-                    <div class="seasonal-note">
-                        <h4>🍂 Seasonal Considerations</h4>
-                        <p>${carePlan.seasonal_notes}</p>
-                    </div>
-                `;
-            }
-
-            carePlanSection.innerHTML = summaryHTML;
+            carePlanSection.innerHTML = html;
             container.appendChild(carePlanSection);
+
+            // Render markdown using marked.js
+            const carePlanTextDiv = document.getElementById('carePlanText');
+            carePlanTextDiv.innerHTML = marked.parse(carePlan.care_plan_text);
         }
 
-        function switchWeek(weekIndex) {
-            const tabs = document.querySelectorAll('.week-tab');
-            tabs.forEach((tab, index) => {
-                if (index === weekIndex) {
-                    tab.classList.add('active');
-                } else {
-                    tab.classList.remove('active');
-                }
-            });
+        function displaySpeciesOnlyResults(data) {
+            resultsContainer.innerHTML = '';
+            results.classList.remove('hidden');
 
-            const contents = document.querySelectorAll('.week-content');
-            contents.forEach((content, index) => {
-                if (index === weekIndex) {
-                    content.classList.add('active');
-                } else {
-                    content.classList.remove('active');
-                }
-            });
+            const section = document.createElement('div');
+            section.innerHTML = '<div class="section-header"><span>🔍</span><span>Species Identification Results</span></div><div id="speciesResults"></div>';
+            resultsContainer.appendChild(section);
+
+            const speciesResults = document.getElementById('speciesResults');
+            
+            if (data.success && data.results.length > 0) {
+                displaySpeciesResults(data.results, speciesResults);
+            } else {
+                speciesResults.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">No species identified</div>';
+            }
+        }
+
+        function displayDiseaseOnlyResults(data) {
+            resultsContainer.innerHTML = '';
+            results.classList.remove('hidden');
+
+            const section = document.createElement('div');
+            section.innerHTML = '<div class="section-header"><span>🩺</span><span>Disease Detection Results</span></div><div id="diseaseResults"></div>';
+            resultsContainer.appendChild(section);
+
+            const diseaseResults = document.getElementById('diseaseResults');
+            
+            if (data.success && data.predictions.length > 0) {
+                displayDiseaseResults(data.predictions, diseaseResults, data.filter_message);
+            } else {
+                diseaseResults.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">No diseases detected</div>';
+            }
         }
 
         function showMessage(text, type) {
