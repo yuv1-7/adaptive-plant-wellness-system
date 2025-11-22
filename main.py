@@ -10,6 +10,7 @@ from services.plant_identifier import PlantIdentifierService
 from services.disease_detector import PlantDiseaseDetector
 from services.perenual_service import PerenualService
 from services.gemini_careplan import GeminiCareplanGenerator
+from services.weather_service import WeatherService
 from models.response_models import (
     PlantIdentificationResponse, 
     ErrorResponse,
@@ -39,6 +40,7 @@ plant_service = PlantIdentifierService()
 disease_service = PlantDiseaseDetector()
 perenual_service = PerenualService()
 gemini_service = GeminiCareplanGenerator()
+weather_service = WeatherService()
 
 
 def extract_plant_name(species_name: str) -> str:
@@ -214,10 +216,13 @@ async def root():
 async def analyze_plant(
     file: UploadFile = File(...),
     generate_care_plan: bool = Query(False, description="Generate care plan for identified plant"),
-    days: int = Query(7, ge=1, le=30, description="Number of days for care plan (default: 7)")
+    days: int = Query(7, ge=1, le=30, description="Number of days for care plan (default: 7)"),
+    latitude: Optional[float] = Query(None, description="Latitude for weather forecast"),
+    longitude: Optional[float] = Query(None, description="Longitude for weather forecast"),
+    city: Optional[str] = Query(None, description="City name for weather forecast (alternative to lat/lon)")
 ):
     """
-    Complete plant analysis: species identification + disease detection + optional care plan
+    Complete plant analysis: species identification + disease detection + optional care plan with weather
     Disease results are filtered to match identified species.
     """
     try:
@@ -244,6 +249,13 @@ async def analyze_plant(
         if generate_care_plan and species_result.success and species_result.results:
             top_plant = species_result.results[0]
             
+            # Get weather forecast if location provided
+            weather_data = None
+            if latitude is not None and longitude is not None:
+                weather_data = await weather_service.get_weather_forecast(latitude, longitude, days)
+            elif city:
+                weather_data = await weather_service.get_weather_by_city(city, days)
+            
             # Try scientific name first, then common names
             care_guide = await perenual_service.get_plant_care_guide(top_plant.scientific_name)
             
@@ -252,8 +264,10 @@ async def analyze_plant(
                 care_guide = await perenual_service.get_plant_care_guide(top_plant.common_names[0])
             
             if care_guide:
-                care_plan = await gemini_service.generate_daily_care_plan(care_guide, days)
+                care_plan = await gemini_service.generate_daily_care_plan(care_guide, days, weather_data)
                 response['care_plan'] = care_plan
+                if weather_data:
+                    response['weather'] = weather_data
             else:
                 response['care_plan'] = {
                     'success': False,
@@ -307,19 +321,32 @@ async def detect_disease(file: UploadFile = File(...)):
 @app.post("/api/care-plan")
 async def generate_care_plan(
     plant_name: str = Query(..., description="Scientific or common name of the plant"),
-    days: int = Query(7, ge=1, le=30, description="Number of days for the care plan (default: 7)")
+    days: int = Query(7, ge=1, le=30, description="Number of days for the care plan (default: 7)"),
+    latitude: Optional[float] = Query(None, description="Latitude for weather forecast"),
+    longitude: Optional[float] = Query(None, description="Longitude for weather forecast"),
+    city: Optional[str] = Query(None, description="City name for weather forecast (alternative to lat/lon)")
 ):
     """
-    Generate a day-by-day care plan for a plant
+    Generate a day-by-day care plan for a plant with optional weather integration
     
     Args:
         plant_name: Scientific or common name of the plant
         days: Number of days (1-30, default: 7)
+        latitude: Latitude for weather forecast (optional)
+        longitude: Longitude for weather forecast (optional)
+        city: City name for weather forecast (optional, alternative to lat/lon)
     
     Returns:
-        Detailed daily care plan
+        Detailed daily care plan with weather-adapted recommendations
     """
     try:
+        # Get weather forecast if location provided
+        weather_data = None
+        if latitude is not None and longitude is not None:
+            weather_data = await weather_service.get_weather_forecast(latitude, longitude, days)
+        elif city:
+            weather_data = await weather_service.get_weather_by_city(city, days)
+        
         # Get plant care information from Perenual
         care_guide = await perenual_service.get_plant_care_guide(plant_name)
         
@@ -329,14 +356,18 @@ async def generate_care_plan(
                 detail=f"Plant '{plant_name}' not found in database"
             )
         
-        # Generate care plan using Gemini
-        care_plan = await gemini_service.generate_daily_care_plan(care_guide, days)
+        # Generate care plan using Gemini with weather context
+        care_plan = await gemini_service.generate_daily_care_plan(care_guide, days, weather_data)
         
         if not care_plan.get('success'):
             raise HTTPException(
                 status_code=500,
                 detail=care_plan.get('error', 'Failed to generate care plan')
             )
+        
+        # Include weather data in response if available
+        if weather_data:
+            care_plan['weather'] = weather_data
         
         return care_plan
         
@@ -349,6 +380,56 @@ async def generate_care_plan(
         )
 
 
+@app.get("/api/weather")
+async def get_weather(
+    latitude: Optional[float] = Query(None, description="Latitude"),
+    longitude: Optional[float] = Query(None, description="Longitude"),
+    city: Optional[str] = Query(None, description="City name"),
+    days: int = Query(7, ge=1, le=16, description="Number of days (1-16, default: 7)")
+):
+    """
+    Get weather forecast for plant care planning
+    Uses Open-Meteo API - 100% free, no API key required!
+    
+    Args:
+        latitude: Latitude (required if city not provided)
+        longitude: Longitude (required if city not provided)
+        city: City name (alternative to lat/lon)
+        days: Number of days (1-16, default: 7)
+    
+    Returns:
+        Weather forecast data
+    """
+    try:
+        weather_data = None
+        
+        if latitude is not None and longitude is not None:
+            weather_data = await weather_service.get_weather_forecast(latitude, longitude, days)
+        elif city:
+            weather_data = await weather_service.get_weather_by_city(city, days)
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Either (latitude, longitude) or city must be provided"
+            )
+        
+        if not weather_data:
+            raise HTTPException(
+                status_code=404,
+                detail="Weather data not available for the specified location"
+            )
+        
+        return weather_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching weather: {str(e)}"
+        )
+
+
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint"""
@@ -356,7 +437,8 @@ async def health_check():
     return {
         "status": "healthy", 
         "service": "plant-identifier-disease-detector",
-        "disease_model": model_info
+        "disease_model": model_info,
+        "weather_service": "Open-Meteo (Free - No API Key)"
     }
 
 

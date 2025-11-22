@@ -73,6 +73,68 @@
             font-weight: bold;
         }
 
+        .location-section {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #3498db;
+        }
+
+        .location-section h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .location-section p {
+            margin-bottom: 15px;
+            color: #666;
+        }
+
+        .location-inputs {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .location-inputs input {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .location-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .location-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .location-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .location-status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
         .upload-area {
             border: 3px dashed #27ae60;
             border-radius: 15px;
@@ -124,6 +186,14 @@
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.4);
         }
 
         .loading {
@@ -206,7 +276,6 @@
             font-weight: bold;
         }
 
-        /* Care Plan Styles */
         .care-plan-section {
             margin-top: 30px;
             grid-column: 1 / -1;
@@ -240,6 +309,107 @@
             background: rgba(255, 255, 255, 0.2);
             padding: 8px 15px;
             border-radius: 20px;
+        }
+
+        .weather-section {
+            margin-top: 20px;
+            background: #e8f5ff;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #3498db;
+        }
+
+        .weather-header {
+            color: #3498db;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .weather-summary {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .weather-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .weather-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .weather-card .label {
+            font-weight: bold;
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .weather-card .value {
+            font-size: 1.5em;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .weather-card .subvalue {
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .daily-forecast {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .forecast-day {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: grid;
+            grid-template-columns: 120px repeat(4, 1fr);
+            gap: 15px;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .forecast-day {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        .forecast-day .day-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .forecast-item {
+            text-align: center;
+        }
+
+        .forecast-item .label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .forecast-item .value {
+            font-weight: bold;
+            color: #333;
         }
 
         .care-plan-content {
@@ -299,18 +469,6 @@
             font-weight: 600;
         }
 
-        .care-plan-content em {
-            color: #666;
-        }
-
-        .care-plan-content blockquote {
-            border-left: 4px solid #667eea;
-            padding-left: 20px;
-            margin: 20px 0;
-            color: #666;
-            font-style: italic;
-        }
-
         .warning-message,
         .success,
         .error {
@@ -352,53 +510,29 @@
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
-
-        .care-plan-content code {
-            background: #f4f4f4;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: monospace;
-            font-size: 0.9em;
-        }
-
-        .care-plan-content pre {
-            background: #f4f4f4;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-            margin: 15px 0;
-        }
-
-        .care-plan-content table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-
-        .care-plan-content table th,
-        .care-plan-content table td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-
-        .care-plan-content table th {
-            background: #27ae60;
-            color: white;
-        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>🌿 Plant Analysis & Care System</h1>
-        <p class="subtitle">Advanced plant identification, disease detection & personalized 7-day care planning</p>
+        <p class="subtitle">Advanced plant identification, disease detection & personalized weather-adapted care planning</p>
 
         <div class="mode-selector">
             <button class="mode-btn active" data-mode="full">🔬 Full Analysis</button>
-            <button class="mode-btn" data-mode="full-care">🔬 Full + 7-Day Care Plan</button>
+            <button class="mode-btn" data-mode="full-care">🔬 Full + Weather Care Plan</button>
             <button class="mode-btn" data-mode="species">🔍 Species Only</button>
             <button class="mode-btn" data-mode="disease">🩺 Disease Only</button>
+        </div>
+
+        <div id="locationSection" class="location-section hidden">
+            <h3>📍 Location for Weather-Based Care</h3>
+            <p>Provide your location to get weather-adapted care recommendations (100% Free - No API Key Required)</p>
+            <div class="location-inputs">
+                <input type="text" id="cityInput" placeholder="Enter city name (e.g., London, New York, Mumbai)">
+                <button class="btn btn-secondary" onclick="detectLocation()">📍 Use My Location</button>
+            </div>
+            <div id="locationStatus"></div>
         </div>
 
         <div class="upload-area" id="uploadArea">
@@ -438,18 +572,73 @@
         const resultsContainer = document.getElementById('resultsContainer');
         const message = document.getElementById('message');
         const modeButtons = document.querySelectorAll('.mode-btn');
+        const locationSection = document.getElementById('locationSection');
+        const cityInput = document.getElementById('cityInput');
+        const locationStatus = document.getElementById('locationStatus');
 
         let selectedFile = null;
         let currentMode = 'full';
+        let userLocation = null;
 
         modeButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 modeButtons.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentMode = btn.dataset.mode;
+                
+                if (currentMode === 'full-care') {
+                    locationSection.classList.remove('hidden');
+                } else {
+                    locationSection.classList.add('hidden');
+                }
+                
                 updateActionButtons();
             });
         });
+
+        function detectLocation() {
+            if (!navigator.geolocation) {
+                showLocationStatus('❌ Geolocation not supported by your browser', 'error');
+                return;
+            }
+
+            showLocationStatus('🔄 Detecting location...', 'info');
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    userLocation = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    };
+                    showLocationStatus(
+                        `✅ Location detected: ${userLocation.latitude.toFixed(2)}, ${userLocation.longitude.toFixed(2)}`,
+                        'success'
+                    );
+                    cityInput.value = '';
+                },
+                (error) => {
+                    showLocationStatus('❌ Could not detect location. Please enter city name instead.', 'error');
+                }
+            );
+        }
+
+        cityInput.addEventListener('input', () => {
+            if (cityInput.value.trim()) {
+                userLocation = { city: cityInput.value.trim() };
+                showLocationStatus(`✅ City set: ${cityInput.value.trim()}`, 'success');
+            } else {
+                if (userLocation && !userLocation.latitude) {
+                    userLocation = null;
+                    locationStatus.innerHTML = '';
+                    locationStatus.className = '';
+                }
+            }
+        });
+
+        function showLocationStatus(text, type) {
+            locationStatus.textContent = text;
+            locationStatus.className = `location-status ${type}`;
+        }
 
         function updateActionButtons() {
             if (!selectedFile) return;
@@ -458,7 +647,7 @@
             if (currentMode === 'full') {
                 actionButtons.innerHTML = '<button class="btn" onclick="analyzeImage(\'full\', false)">🔬 Full Analysis</button>';
             } else if (currentMode === 'full-care') {
-                actionButtons.innerHTML = '<button class="btn" onclick="analyzeImage(\'full\', true)">🔬 Analyze & Generate 7-Day Care Plan</button>';
+                actionButtons.innerHTML = '<button class="btn" onclick="analyzeImage(\'full\', true)">🔬 Analyze & Generate Weather Care Plan</button>';
             } else if (currentMode === 'species') {
                 actionButtons.innerHTML = '<button class="btn" onclick="analyzeImage(\'species\', false)">🔍 Identify Species</button>';
             } else if (currentMode === 'disease') {
@@ -511,7 +700,7 @@
             document.querySelectorAll('.btn').forEach(btn => btn.disabled = true);
 
             if (withCarePlan) {
-                loadingText.textContent = 'Analyzing plant and generating personalized 7-day care plan... This may take 30-60 seconds.';
+                loadingText.textContent = 'Analyzing plant and generating weather-adapted care plan... This may take 30-60 seconds.';
             } else {
                 loadingText.textContent = 'Analyzing image...';
             }
@@ -523,6 +712,14 @@
                 let url;
                 if (mode === 'full') {
                     url = `/api/analyze?generate_care_plan=${withCarePlan}&days=7`;
+                    
+                    if (withCarePlan && userLocation) {
+                        if (userLocation.latitude && userLocation.longitude) {
+                            url += `&latitude=${userLocation.latitude}&longitude=${userLocation.longitude}`;
+                        } else if (userLocation.city) {
+                            url += `&city=${encodeURIComponent(userLocation.city)}`;
+                        }
+                    }
                 } else if (mode === 'species') {
                     url = '/api/identify';
                 } else if (mode === 'disease') {
@@ -587,6 +784,9 @@
 
             if (withCarePlan && data.care_plan) {
                 if (data.care_plan.success) {
+                    if (data.weather) {
+                        displayWeatherInfo(data.weather, resultsContainer);
+                    }
                     displayCarePlan(data.care_plan, resultsContainer);
                 } else {
                     const carePlanSection = document.createElement('div');
@@ -672,9 +872,81 @@
             });
         }
 
+        function displayWeatherInfo(weather, container) {
+            const weatherSection = document.createElement('div');
+            weatherSection.className = 'weather-section';
+
+            const summary = weather.summary;
+            const location = weather.location;
+            const cityName = location.admin1 ? `${location.city}, ${location.admin1}` : location.city;
+
+            let html = `
+                <div class="weather-header">🌤️ Weather Forecast - ${cityName}, ${location.country}</div>
+                <div class="weather-summary">
+                    <h3 style="color: #3498db; margin-bottom: 15px;">Weekly Summary</h3>
+                    <div class="weather-grid">
+                        <div class="weather-card">
+                            <div class="label">🌡️ Temperature</div>
+                            <div class="value">${summary.avg_temperature}°C</div>
+                            <div class="subvalue">Range: ${summary.temp_range.min}°C - ${summary.temp_range.max}°C</div>
+                        </div>
+                        <div class="weather-card">
+                            <div class="label">🌧️ Rainfall</div>
+                            <div class="value">${summary.total_rainfall}mm</div>
+                            <div class="subvalue">${summary.rainy_days} rainy days</div>
+                        </div>
+                        <div class="weather-card">
+                            <div class="label">💧 Humidity</div>
+                            <div class="value">${summary.avg_humidity}%</div>
+                            <div class="subvalue">Estimated avg</div>
+                        </div>
+                        <div class="weather-card">
+                            <div class="label">☁️ Conditions</div>
+                            <div class="value">${summary.dominant_condition}</div>
+                            <div class="subvalue">Most common</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="daily-forecast">
+                    <h3 style="color: #3498db; margin-bottom: 15px;">Daily Forecast</h3>
+            `;
+
+            weather.forecast_days.forEach(day => {
+                html += `
+                    <div class="forecast-day">
+                        <div class="day-name">${day.day_name}</div>
+                        <div class="forecast-item">
+                            <div class="label">Temperature</div>
+                            <div class="value" style="color: #e74c3c;">${day.temperature.min}°C - ${day.temperature.max}°C</div>
+                        </div>
+                        <div class="forecast-item">
+                            <div class="label">Condition</div>
+                            <div class="value">${day.condition}</div>
+                        </div>
+                        <div class="forecast-item">
+                            <div class="label">Rain</div>
+                            <div class="value" style="color: #3498db;">${day.rain_total}mm</div>
+                        </div>
+                        <div class="forecast-item">
+                            <div class="label">Humidity</div>
+                            <div class="value" style="color: #9b59b6;">${day.humidity.avg}%</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            weatherSection.innerHTML = html;
+            container.appendChild(weatherSection);
+        }
+
         function displayCarePlan(carePlan, container) {
             const carePlanSection = document.createElement('div');
             carePlanSection.className = 'care-plan-section';
+
+            const weatherBadge = carePlan.weather_included 
+                ? '<span>🌤️ Weather-Adapted</span>' 
+                : '';
 
             const html = `
                 <div class="care-plan-header">
@@ -683,6 +955,7 @@
                         <span>🌱 ${carePlan.plant_name}</span>
                         <span>🔬 ${carePlan.scientific_name}</span>
                         <span>📊 Care Level: ${carePlan.care_level}</span>
+                        ${weatherBadge}
                     </div>
                 </div>
                 <div class="care-plan-content" id="carePlanText"></div>
