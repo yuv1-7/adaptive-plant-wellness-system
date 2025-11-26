@@ -389,7 +389,6 @@ async def get_weather(
 ):
     """
     Get weather forecast for plant care planning
-    Uses Open-Meteo API - 100% free, no API key required!
     
     Args:
         latitude: Latitude (required if city not provided)
