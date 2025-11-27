@@ -11,7 +11,6 @@ class WeatherService:
     """Service for fetching weather forecast data using Open-Meteo API (100% Free, No API Key)"""
     
     def __init__(self):
-        # Open-Meteo is completely free and requires no API key
         self.base_url = "https://api.open-meteo.com/v1"
         self.geocoding_url = "https://geocoding-api.open-meteo.com/v1"
     
@@ -35,7 +34,6 @@ class WeatherService:
         """
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
-                # Open-Meteo forecast endpoint
                 forecast_url = f"{self.base_url}/forecast"
                 params = {
                     'latitude': latitude,
@@ -43,7 +41,7 @@ class WeatherService:
                     'daily': 'temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,weathercode,windspeed_10m_max',
                     'current_weather': 'true',
                     'timezone': 'auto',
-                    'forecast_days': min(days, 16)  # Open-Meteo supports up to 16 days
+                    'forecast_days': min(days, 16)
                 }
                 
                 response = await client.get(forecast_url, params=params)
@@ -82,7 +80,6 @@ class WeatherService:
         """
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
-                # Get coordinates for the city using Open-Meteo Geocoding
                 geo_url = f"{self.geocoding_url}/search"
                 geo_params = {
                     'name': city_name,
@@ -106,7 +103,6 @@ class WeatherService:
                 # Get forecast using coordinates
                 forecast = await self.get_weather_forecast(lat, lon, days)
                 
-                # Update location info with geocoding results
                 if forecast:
                     forecast['location'] = {
                         'city': result.get('name', city_name),
@@ -125,7 +121,6 @@ class WeatherService:
     async def _get_location_name(self, client: httpx.AsyncClient, lat: float, lon: float) -> Dict[str, str]:
         """Get location name from coordinates using reverse geocoding"""
         try:
-            # Open-Meteo reverse geocoding
             geo_url = f"{self.geocoding_url}/search"
             # Use nearby search with coordinates
             geo_params = {
@@ -198,7 +193,6 @@ class WeatherService:
             wind_speed = daily_data['windspeed_10m_max'][i]
             
             # Estimate humidity based on precipitation (rough approximation)
-            # More rain = higher humidity
             humidity_estimate = min(40 + (precipitation * 2), 95)
             
             condition = weather_codes.get(weathercode, 'Unknown')
