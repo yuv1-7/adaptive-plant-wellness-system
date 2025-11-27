@@ -11,15 +11,11 @@ from services.disease_detector import PlantDiseaseDetector
 from services.perenual_service import PerenualService
 from services.gemini_careplan import GeminiCareplanGenerator
 from services.weather_service import WeatherService
-from models.response_models import (
-    PlantIdentificationResponse, 
-    ErrorResponse,
-    CombinedAnalysisResponse
-)
+from models.response_models import PlantIdentificationResponse
+
 
 app = FastAPI(
-    title="Plant Species Identifier & Disease Detection API",
-    version="3.0.0"
+    title="Plant Species Identifier & Disease Detection API"
 )
 
 # CORS middleware
