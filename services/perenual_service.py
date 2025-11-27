@@ -11,7 +11,7 @@ class PerenualService:
     
     def __init__(self):
         self.api_key = os.getenv("perenual_api_key")
-        self.base_url = "https://perenual.com/api/v2"  # Fixed: Added v2
+        self.base_url = "https://perenual.com/api/v2"
         
     async def search_plant_by_name(self, plant_name: str) -> Optional[Dict[str, Any]]:
         """
