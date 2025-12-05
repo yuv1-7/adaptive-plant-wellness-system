@@ -16,7 +16,6 @@ class TrefleService:
         self.api_key = os.getenv("trefle_api_key")
         self.base_url = "https://trefle.io/api/v1"
         
-        # Setup cache directory
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(exist_ok=True)
         self.cache_file = self.cache_dir / "trefle_cache.json"
@@ -86,7 +85,6 @@ class TrefleService:
                     print(f"No results found for: {plant_name}")
                     return None
                 
-                # Get the first matching plant's ID
                 plant_id = data['data'][0]['id']
                 plant_slug = data['data'][0]['slug']
                 print(f"Found plant ID {plant_id} ({plant_slug}) for: {plant_name}")
@@ -143,7 +141,6 @@ class TrefleService:
         specifications = main_specs.get('specifications', {})
         growth = main_specs.get('growth', {})
         
-        # Map Trefle data to our format (similar to Perenual structure)
         return {
             'id': data.get('id'),
             'common_name': safe_get(data, 'common_name', 'Unknown'),
@@ -269,7 +266,6 @@ class TrefleService:
         main_specs = data.get('main_species', {})
         growth = main_specs.get('growth', {})
         
-        # Simple heuristic
         if growth.get('atmospheric_humidity') and growth.get('atmospheric_humidity') >= 7:
             return 'Difficult'
         elif main_specs.get('edible'):
@@ -298,7 +294,6 @@ class TrefleService:
         if not flower:
             return None
         
-        # Trefle doesn't provide this directly, estimate based on color presence
         if flower.get('color'):
             return 'Spring to Summer'
         return None
@@ -318,7 +313,6 @@ class TrefleService:
         if not plant_details:
             return None
         
-        # Structure care guide
         care_guide = {
             'plant_info': {
                 'name': plant_details['common_name'],

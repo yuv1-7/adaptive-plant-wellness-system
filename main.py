@@ -8,7 +8,7 @@ from typing import List, Optional
 
 from services.plant_identifier import PlantIdentifierService
 from services.disease_detector import PlantDiseaseDetector
-from services.trefle_service import TrefleService  # Changed from perenual_service
+from services.trefle_service import TrefleService
 from services.gemini_careplan import GeminiCareplanGenerator
 from services.weather_service import WeatherService
 from models.response_models import PlantIdentificationResponse
@@ -18,7 +18,6 @@ app = FastAPI(
     title="Plant Species Identifier & Disease Detection API"
 )
 
-# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -31,10 +30,9 @@ static_path = Path(__file__).parent / "static"
 static_path.mkdir(exist_ok=True)
 app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
 
-# Initialize services
 plant_service = PlantIdentifierService()
 disease_service = PlantDiseaseDetector()
-trefle_service = TrefleService()  # Changed from perenual_service
+trefle_service = TrefleService()
 gemini_service = GeminiCareplanGenerator()
 weather_service = WeatherService()
 

@@ -54,7 +54,6 @@ class PlantIdentifierService:
                 response.raise_for_status()
                 data = response.json()
                 
-                # Parse results
                 results = self._parse_results(data)
                 
                 return PlantIdentificationResponse(
