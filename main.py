@@ -8,7 +8,7 @@ from typing import List, Optional
 
 from services.plant_identifier import PlantIdentifierService
 from services.disease_detector import PlantDiseaseDetector
-from services.perenual_service import PerenualService
+from services.trefle_service import TrefleService  # Changed from perenual_service
 from services.gemini_careplan import GeminiCareplanGenerator
 from services.weather_service import WeatherService
 from models.response_models import PlantIdentificationResponse
@@ -34,7 +34,7 @@ app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
 # Initialize services
 plant_service = PlantIdentifierService()
 disease_service = PlantDiseaseDetector()
-perenual_service = PerenualService()
+trefle_service = TrefleService()  # Changed from perenual_service
 gemini_service = GeminiCareplanGenerator()
 weather_service = WeatherService()
 
@@ -253,11 +253,11 @@ async def analyze_plant(
                 weather_data = await weather_service.get_weather_by_city(city, days)
             
             # Try scientific name first, then common names
-            care_guide = await perenual_service.get_plant_care_guide(top_plant.scientific_name)
+            care_guide = await trefle_service.get_plant_care_guide(top_plant.scientific_name)
             
             if not care_guide and top_plant.common_names:
                 # Try with first common name
-                care_guide = await perenual_service.get_plant_care_guide(top_plant.common_names[0])
+                care_guide = await trefle_service.get_plant_care_guide(top_plant.common_names[0])
             
             if care_guide:
                 care_plan = await gemini_service.generate_daily_care_plan(care_guide, days, weather_data)
@@ -343,8 +343,8 @@ async def generate_care_plan(
         elif city:
             weather_data = await weather_service.get_weather_by_city(city, days)
         
-        # Get plant care information from Perenual
-        care_guide = await perenual_service.get_plant_care_guide(plant_name)
+        # Get plant care information from Trefle
+        care_guide = await trefle_service.get_plant_care_guide(plant_name)
         
         if not care_guide:
             raise HTTPException(
@@ -429,11 +429,14 @@ async def get_weather(
 async def health_check():
     """Health check endpoint"""
     model_info = disease_service.get_model_info()
+    cache_stats = trefle_service.get_cache_stats()
     return {
         "status": "healthy", 
         "service": "plant-identifier-disease-detector",
         "disease_model": model_info,
-        "weather_service": "Open-Meteo (Free - No API Key)"
+        "weather_service": "Open-Meteo (Free - No API Key)",
+        "plant_database": "Trefle API (Free - 120 calls/day)",
+        "cache": cache_stats
     }
 
 
