@@ -1,4 +1,6 @@
 .env
 **/__pycache__
 **/datasets/
+**/node_modules
+**/node_modules/**
 cache/
